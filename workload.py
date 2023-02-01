@@ -95,11 +95,77 @@ def fetchArrivals(start_time, end_time, num_of_tasks, dist_id, cur):
     dist_name = cur.fetchall()
     dist_name = dist_name[0][0]
 
-    scale = start_time + ((end_time - start_time) / 2)
-
+    # scale = start_time + ((end_time - start_time) / 2)
     # Should probably switch based on dist_id
+    # if dist_name == 'exponential':
+    #     return np.random.exponential(scale, num_of_tasks)
+    # elif dist_name == 'uniform':
+    #     return np.random.unform(scale, num_of_tasks)
+    # elif dist_name == 'normal':
+    #     return np.random.normal(scale, num_of_tasks)
+    # elif dist_name == 'spiky':
+    #     return np.random.spiky(scale, num_of_tasks)
     if dist_name == 'exponential':
-        return np.random.exponential(scale, num_of_tasks)
+        beta = (end_time - start_time) / num_of_tasks
+        interarrival = np.random.exponential(
+                       beta, num_of_tasks)
+        distribution = start_time + np.cumsum(interarrival)        
+        distribution = [round(x, 3) for x in distribution]
+
+        return distribution
+    elif dist_name == 'uniform':
+        distribution = np.random.uniform(start_time, end_time,
+                                         num_of_tasks)
+        distribution = [round(x, 3) for x in distribution]
+
+        return distribution
+    elif dist_name == 'normal':
+        mu = (start_time + end_time) / 2.0
+        sigma = (end_time - start_time) / 6.0
+
+        distribution = np.random.normal(mu, sigma, num_of_tasks)       
+        distribution[distribution > end_time] = end_time
+        distribution[distribution < start_time] = start_time
+        distribution = [round(x, 3) for x in distribution]
+
+        return distribution
+    elif dist_name == 'spiky':
+        #hard-coded in for the time being
+        no_of_spikes = 10
+
+        # Here, tasks are considered to be arrived in spiky manner. The spikes
+        # occurred at random positions but have same width.
+        # The number of tasks arrive at each spike is also a random variable.
+        # no_of_spikes: It is the number of spikes in the given time
+        # interval [start_time, end_time]
+
+        # Each spike width is 1% of the time interval.
+        spike_width = 0.01 * (end_time - start_time)
+        # Each spike begins at a random position which is drawn from a 
+        # uniform distribution.
+        if isinstance(no_of_spikes, int):
+            spike_starts = np.random.uniform(start_time,
+                                             end_time, no_of_spikes)
+            distribution = []
+            # remaining_tasks is the number of tasks that arrive afterward.
+            remaining_tasks = num_of_tasks
+            # A loop to generate spikes sequentially
+            for spikes_no in range(no_of_spikes):
+                # no_of_tasks_in_spike: Number of tasks arrive at each spike
+                no_of_tasks_in_spike = np.random.randint(remaining_tasks + 1)
+                # spike: distribution of tasks arrival time in each spike
+                spike = np.random.uniform(spike_starts[spikes_no],
+                                          spike_starts[spikes_no] + spike_width,
+                                          no_of_tasks_in_spike)
+                remaining_tasks -= no_of_tasks_in_spike
+                distribution = np.concatenate((distribution, spike))
+            distribution = [round(x, 3) for x in distribution]
+
+            return distribution
+        else:
+            print("Invalid amount of spikes.")
+            sys.exit()
+
 
 def init(cur, conn):
     # Obtain list of all tables
