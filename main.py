@@ -124,14 +124,11 @@ class Ui_MainWindow(object):
         self.add_scen_btn = QtWidgets.QPushButton(self.centralwidget)
         self.add_scen_btn.setGeometry(QtCore.QRect(650, 250, 75, 23))
         self.add_scen_btn.setObjectName("add_scen_btn")
-        self.submit_scen_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.submit_scen_btn.setGeometry(QtCore.QRect(650, 280, 75, 23))
-        self.submit_scen_btn.setObjectName("submit_scen_btn")
         self.dist_scen_lbl = QtWidgets.QLabel(self.centralwidget)
         self.dist_scen_lbl.setGeometry(QtCore.QRect(520, 210, 61, 16))
         self.dist_scen_lbl.setObjectName("dist_scen_lbl")
         self.dist_combo = QtWidgets.QComboBox(self.centralwidget)
-        self.dist_combo.setGeometry(QtCore.QRect(600, 210, 69, 22))
+        self.dist_combo.setGeometry(QtCore.QRect(600, 210, 100, 22))
         self.dist_combo.setObjectName("dist_combo")
         self.dist_combo.addItem("")
         self.dist_combo.addItem("")
@@ -190,7 +187,6 @@ class Ui_MainWindow(object):
         self.starting_time_lbl.setText(_translate("MainWindow", "Starting time"))
         self.ending_time_lbl.setText(_translate("MainWindow", "Ending time"))
         self.add_scen_btn.setText(_translate("MainWindow", "Add Scenario"))
-        self.submit_scen_btn.setText(_translate("MainWindow", "Submit All"))
         self.dist_scen_lbl.setText(_translate("MainWindow", "Distribution"))
         self.dist_combo.setItemText(0, _translate("MainWindow", "1. Uniform"))
         self.dist_combo.setItemText(1, _translate("MainWindow", "2. Normal"))
@@ -235,6 +231,27 @@ class Ui_MainWindow(object):
 
             cur.execute(f"DELETE FROM {self.table} WHERE {self.id} = {self.id_to_del};")
             conn.commit()
+            
+            #above removes from db, this below shows to reflect live in the gui
+            if(self.table == "task_types"):
+                self.indexes = []
+                self.amount = self.wl_amount.text()
+                for k in range(int(self.amount)):
+                    cur.execute(f"SELECT * FROM workload{k+1}")
+                    self.length = len(cur.fetchall())
+
+                    for i in range(self.length):
+                        cur.execute(f"SELECT instance_id FROM workload{k+1} WHERE task_id = {self.id_to_del} AND instance_id = {i+1}")
+                        self.del_task = cur.fetchone()
+                        if self.del_task != None:
+                            # print(str(k+1) + "--" + str(self.del_task[0])) 
+                            self.indexes.append(self.del_task[0])
+                            
+                        self.indexes = sorted(self.indexes, reverse=True)
+                    for idx in self.indexes:
+                        # print(idx)
+                        self.wk_table_list[k].removeRow(idx-1)
+                    self.indexes.clear()
 
     def update_row(self):
         self.entry = self.fields.text().split(",")
@@ -375,31 +392,33 @@ class Ui_MainWindow(object):
     def generate(self):
         self.amount = self.wl_amount.text()
         wl.createWorkload(cur, conn, int(self.amount))
+        self.wk_table_list = []
 
         for k in range(int(self.amount)):
             self.tab = QtWidgets.QWidget()
             self.tab.setObjectName("tab")
             self.tab.layout = QtWidgets.QVBoxLayout()
-            self.table = QtWidgets.QTableWidget()
-            self.table.setColumnCount(4)
-            self.tab.layout.addWidget(self.table)
+            self.wk_table = QtWidgets.QTableWidget()
+            self.wk_table.setColumnCount(4)
+            self.tab.layout.addWidget(self.wk_table)
             self.tab.setLayout(self.tab.layout)
 
             item = QtWidgets.QTableWidgetItem("id")
-            self.table.setHorizontalHeaderItem(0, item)
+            self.wk_table.setHorizontalHeaderItem(0, item)
             item = QtWidgets.QTableWidgetItem("task type")
-            self.table.setHorizontalHeaderItem(1, item)
+            self.wk_table.setHorizontalHeaderItem(1, item)
             item = QtWidgets.QTableWidgetItem("task name")
-            self.table.setHorizontalHeaderItem(2, item)
+            self.wk_table.setHorizontalHeaderItem(2, item)
             item = QtWidgets.QTableWidgetItem("arrival")
-            self.table.setHorizontalHeaderItem(3, item)
+            self.wk_table.setHorizontalHeaderItem(3, item)
             # item = QtWidgets.QTableWidgetItem("dist")
             # self.table.setHorizontalHeaderItem(4, item)
                 
             cur.execute(f"SELECT * FROM workload{k+1}")
             self.length = len(cur.fetchall())
-            self.table.setRowCount(self.length)
+            self.wk_table.setRowCount(self.length)
 
+            # printTable(cur, f"workload{k+1}")
             for i in range(self.length):
                 cur.execute(f"SELECT task_id FROM workload{k+1} WHERE instance_id = {i+1}")
                 self.task_id = cur.fetchone()
@@ -410,14 +429,15 @@ class Ui_MainWindow(object):
                 # cur.execute(f"SELECT distribution.name FROM distribution, workload{k+1}, task_types WHERE workload.task_id = task_types.task_id, instance_id = {i+1}")
                 # self.dist = cur.fetchone()
 
-                self.table.setItem(i,0, QtWidgets.QTableWidgetItem(str(i+1)))
-                self.table.setItem(i,1, QtWidgets.QTableWidgetItem(str(self.task_id)[1]))
-                self.table.setItem(i,2, QtWidgets.QTableWidgetItem(str(self.name)[2:4]))
-                self.table.setItem(i,3, QtWidgets.QTableWidgetItem(str(self.arrival)[1:-2]))
+                self.wk_table.setItem(i,0, QtWidgets.QTableWidgetItem(str(i+1)))
+                self.wk_table.setItem(i,1, QtWidgets.QTableWidgetItem(str(self.task_id)[1]))
+                self.wk_table.setItem(i,2, QtWidgets.QTableWidgetItem(str(self.name)[2:4]))
+                self.wk_table.setItem(i,3, QtWidgets.QTableWidgetItem(str(self.arrival)[1:-2]))
                 # self.table.setItem(i,4, QtWidgets.QTableWidgetItem(str(self.dist)[1]))
                 
             self.tabWidget.addTab(self.tab, f"WL{k+1}")
-        # printTable(cur, "scenario")
+            self.wk_table_list.append(self.wk_table)
+        
 
 
 if __name__ == "__main__":
