@@ -74,6 +74,7 @@ class Ui_MainWindow(object):
         self.example = QtWidgets.QLabel(self.centralwidget)
         self.example.setGeometry(QtCore.QRect(30, 600, 51, 20))
         self.example.setObjectName("example")
+        self.example_field.setDisabled(True)
         self.delete_id_label = QtWidgets.QLabel(self.centralwidget)
         self.delete_id_label.setGeometry(QtCore.QRect(20, 640, 71, 16))
         self.delete_id_label.setObjectName("delete_id_label")
@@ -309,10 +310,10 @@ class Ui_MainWindow(object):
             self.task_id = int(self.entry[0])
             self.name = self.entry[1]
             self.detail = self.entry[2]
-            self.urgency = float(self.entry[3])
+            self.urgency = self.entry[3]
 
             cur.execute(f"INSERT INTO task_types (task_id,name,detail,urgency)"\
-            f"VALUES({self.task_id},'{self.name}','{self.detail}',{self.urgency});")
+            f"VALUES({self.task_id},'{self.name}','{self.detail}','{self.urgency}');")
             conn.commit()
 
             deleteTables(cur, conn, "eet")
