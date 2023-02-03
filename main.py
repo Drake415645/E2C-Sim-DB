@@ -7,6 +7,8 @@ from Utilities.utilities import createSchema, fromCSV, insertData, printTable, d
 import workload as wl
 from initTables import initTables
 import sqlite3 as sq
+import pandas as pd
+import csv
 
 
 
@@ -27,22 +29,22 @@ class Ui_MainWindow(object):
         self.wl_label.setGeometry(QtCore.QRect(10, 10, 101, 16))
         self.wl_label.setObjectName("wl_label")
         self.scen_load = QtWidgets.QPushButton(self.centralwidget)
-        self.scen_load.setGeometry(QtCore.QRect(550, 700, 75, 23))
+        self.scen_load.setGeometry(QtCore.QRect(544, 710, 121, 23))
         self.scen_load.setObjectName("scen_load")
         self.wl_generate = QtWidgets.QPushButton(self.centralwidget)
-        self.wl_generate.setGeometry(QtCore.QRect(650, 460, 75, 23))
+        self.wl_generate.setGeometry(QtCore.QRect(650, 410, 75, 23))
         self.wl_generate.setObjectName("wl_generate")
         self.scen_path = QtWidgets.QLineEdit(self.centralwidget)
-        self.scen_path.setGeometry(QtCore.QRect(630, 700, 61, 20))
+        self.scen_path.setGeometry(QtCore.QRect(670, 710, 61, 20))
         self.scen_path.setObjectName("scen_path")
         self.wl_amount = QtWidgets.QLineEdit(self.centralwidget)
-        self.wl_amount.setGeometry(QtCore.QRect(580, 430, 113, 20))
+        self.wl_amount.setGeometry(QtCore.QRect(580, 380, 113, 20))
         self.wl_amount.setObjectName("wl_amount")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(10, 30, 461, 461))
         self.tabWidget.setObjectName("tabWidget")
         self.update_label = QtWidgets.QLabel(self.centralwidget)
-        self.update_label.setGeometry(QtCore.QRect(10, 530, 61, 16))
+        self.update_label.setGeometry(QtCore.QRect(10, 520, 121, 16))
         self.update_label.setObjectName("update_label")
         self.line = QtWidgets.QFrame(self.centralwidget)
         self.line.setGeometry(QtCore.QRect(10, 500, 711, 20))
@@ -50,48 +52,19 @@ class Ui_MainWindow(object):
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
         self.set_amt = QtWidgets.QLabel(self.centralwidget)
-        self.set_amt.setGeometry(QtCore.QRect(490, 390, 131, 16))
+        self.set_amt.setGeometry(QtCore.QRect(490, 340, 131, 16))
         self.set_amt.setObjectName("set_amt")
-        self.update_to = QtWidgets.QComboBox(self.centralwidget)
-        self.update_to.setGeometry(QtCore.QRect(80, 530, 161, 22))
-        self.update_to.setObjectName("update_to")
-        self.update_to.addItem("")
-        self.update_to.addItem("")
-        self.update_to.addItem("")
-        self.update_to.addItem("")
-        self.fields = QtWidgets.QLineEdit(self.centralwidget)
-        self.fields.setGeometry(QtCore.QRect(100, 570, 501, 20))
-        self.fields.setObjectName("fields")
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(10, 570, 81, 16))
-        self.label.setObjectName("label")
         self.update_submit = QtWidgets.QPushButton(self.centralwidget)
-        self.update_submit.setGeometry(QtCore.QRect(610, 570, 75, 23))
+        self.update_submit.setGeometry(QtCore.QRect(460, 590, 75, 23))
         self.update_submit.setObjectName("update_submit")
-        self.example_field = QtWidgets.QLineEdit(self.centralwidget)
-        self.example_field.setGeometry(QtCore.QRect(100, 600, 501, 20))
-        self.example_field.setObjectName("example_field")
-        self.example = QtWidgets.QLabel(self.centralwidget)
-        self.example.setGeometry(QtCore.QRect(30, 600, 51, 20))
-        self.example.setObjectName("example")
-        self.example_field.setDisabled(True)
         self.delete_id_label = QtWidgets.QLabel(self.centralwidget)
-        self.delete_id_label.setGeometry(QtCore.QRect(20, 640, 71, 16))
+        self.delete_id_label.setGeometry(QtCore.QRect(20, 640, 91, 16))
         self.delete_id_label.setObjectName("delete_id_label")
         self.id_to_delete = QtWidgets.QLineEdit(self.centralwidget)
-        self.id_to_delete.setGeometry(QtCore.QRect(90, 640, 61, 20))
+        self.id_to_delete.setGeometry(QtCore.QRect(30, 660, 61, 20))
         self.id_to_delete.setObjectName("id_to_delete")
-        self.in_label = QtWidgets.QLabel(self.centralwidget)
-        self.in_label.setGeometry(QtCore.QRect(60, 670, 21, 16))
-        self.in_label.setObjectName("in_label")
-        self.which_to_delete = QtWidgets.QComboBox(self.centralwidget)
-        self.which_to_delete.setGeometry(QtCore.QRect(90, 670, 161, 22))
-        self.which_to_delete.setObjectName("which_to_delete")
-        self.which_to_delete.addItem("")
-        self.which_to_delete.addItem("")
-        self.which_to_delete.addItem("")
         self.delete_submit = QtWidgets.QPushButton(self.centralwidget)
-        self.delete_submit.setGeometry(QtCore.QRect(90, 700, 75, 23))
+        self.delete_submit.setGeometry(QtCore.QRect(20, 690, 75, 23))
         self.delete_submit.setObjectName("delete_submit")
         self.line_2 = QtWidgets.QFrame(self.centralwidget)
         self.line_2.setGeometry(QtCore.QRect(10, 620, 711, 20))
@@ -129,15 +102,43 @@ class Ui_MainWindow(object):
         self.dist_scen_lbl.setGeometry(QtCore.QRect(520, 210, 61, 16))
         self.dist_scen_lbl.setObjectName("dist_scen_lbl")
         self.dist_combo = QtWidgets.QComboBox(self.centralwidget)
-        self.dist_combo.setGeometry(QtCore.QRect(600, 210, 100, 22))
+        self.dist_combo.setGeometry(QtCore.QRect(600, 210, 69, 22))
         self.dist_combo.setObjectName("dist_combo")
         self.dist_combo.addItem("")
         self.dist_combo.addItem("")
         self.dist_combo.addItem("")
         self.dist_combo.addItem("")
         self.pound_lbl = QtWidgets.QLabel(self.centralwidget)
-        self.pound_lbl.setGeometry(QtCore.QRect(550, 430, 16, 16))
+        self.pound_lbl.setGeometry(QtCore.QRect(550, 380, 16, 16))
         self.pound_lbl.setObjectName("pound_lbl")
+        self.task_id_lbl = QtWidgets.QLabel(self.centralwidget)
+        self.task_id_lbl.setGeometry(QtCore.QRect(40, 550, 47, 13))
+        self.task_id_lbl.setObjectName("task_id_lbl")
+        self.task_name_lbl = QtWidgets.QLabel(self.centralwidget)
+        self.task_name_lbl.setGeometry(QtCore.QRect(40, 590, 51, 16))
+        self.task_name_lbl.setObjectName("task_name_lbl")
+        self.detail_lbl = QtWidgets.QLabel(self.centralwidget)
+        self.detail_lbl.setGeometry(QtCore.QRect(250, 540, 47, 13))
+        self.detail_lbl.setObjectName("detail_lbl")
+        self.urgency_lbl = QtWidgets.QLabel(self.centralwidget)
+        self.urgency_lbl.setGeometry(QtCore.QRect(240, 590, 47, 13))
+        self.urgency_lbl.setObjectName("urgency_lbl")
+        self.task_id = QtWidgets.QLineEdit(self.centralwidget)
+        self.task_id.setGeometry(QtCore.QRect(90, 550, 41, 20))
+        self.task_id.setObjectName("task_id")
+        self.task_name = QtWidgets.QLineEdit(self.centralwidget)
+        self.task_name.setGeometry(QtCore.QRect(100, 590, 91, 20))
+        self.task_name.setObjectName("task_name")
+        self.detail = QtWidgets.QLineEdit(self.centralwidget)
+        self.detail.setGeometry(QtCore.QRect(290, 540, 51, 20))
+        self.detail.setObjectName("detail")
+        self.urgency_combo = QtWidgets.QComboBox(self.centralwidget)
+        self.urgency_combo.setGeometry(QtCore.QRect(290, 590, 81, 22))
+        self.urgency_combo.setObjectName("urgency_combo")
+        self.urgency_combo.addItem("")
+        self.save_wkld = QtWidgets.QPushButton(self.centralwidget)
+        self.save_wkld.setGeometry(QtCore.QRect(650, 480, 75, 23))
+        self.save_wkld.setObjectName("save_wkld")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -156,32 +157,22 @@ class Ui_MainWindow(object):
 
         self.scen_load.clicked.connect(self.load_scen)
         self.wl_generate.clicked.connect(self.generate)
-        self.update_to.currentTextChanged.connect(self.set_update_to)
-        self.update_submit.clicked.connect(self.update_row)
+        self.update_submit.clicked.connect(self.update_task_types)
         self.delete_submit.clicked.connect(self.delete)
         self.add_scen_btn.clicked.connect(self.add_scen)
+        self.save_wkld.clicked.connect(self.save_wkld_csv)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.scen_label.setText(_translate("MainWindow", "Add a scenario"))
         self.wl_label.setText(_translate("MainWindow", "Generated Workload"))
-        self.scen_load.setText(_translate("MainWindow", "Load(old)"))
+        self.scen_load.setText(_translate("MainWindow", "Load scenario CSV (old)"))
         self.wl_generate.setText(_translate("MainWindow", "Generate"))
-        self.update_label.setText(_translate("MainWindow", "Add row to:"))
+        self.update_label.setText(_translate("MainWindow", "Add Task Type"))
         self.set_amt.setText(_translate("MainWindow", "Set Amount of Workloads"))
-        self.update_to.setItemText(0, _translate("MainWindow", "machine_types"))
-        self.update_to.setItemText(1, _translate("MainWindow", "task_types"))
-        self.update_to.setItemText(2, _translate("MainWindow", "scenario"))
-        self.update_to.setItemText(3, _translate("MainWindow", "distribution"))
-        self.label.setText(_translate("MainWindow", "Enter each field:"))
         self.update_submit.setText(_translate("MainWindow", "Submit"))
-        self.example.setText(_translate("MainWindow", "(example):"))
-        self.delete_id_label.setText(_translate("MainWindow", "Delete Id of:"))
-        self.in_label.setText(_translate("MainWindow", "In:"))
-        self.which_to_delete.setItemText(0, _translate("MainWindow", "machine_types"))
-        self.which_to_delete.setItemText(1, _translate("MainWindow", "task_types"))
-        self.which_to_delete.setItemText(2, _translate("MainWindow", "distribution"))
+        self.delete_id_label.setText(_translate("MainWindow", "Delete Task Type"))
         self.delete_submit.setText(_translate("MainWindow", "Delete"))
         self.scen_task_id_lbl.setText(_translate("MainWindow", "Task Id"))
         self.num_tasks_lbl.setText(_translate("MainWindow", "Num of Tasks"))
@@ -194,8 +185,29 @@ class Ui_MainWindow(object):
         self.dist_combo.setItemText(2, _translate("MainWindow", "3. Exponential"))
         self.dist_combo.setItemText(3, _translate("MainWindow", "4. Spiked"))
         self.pound_lbl.setText(_translate("MainWindow", "#"))
+        self.task_id_lbl.setText(_translate("MainWindow", "Task Id"))
+        self.task_name_lbl.setText(_translate("MainWindow", "Task Name"))
+        self.detail_lbl.setText(_translate("MainWindow", "Detail"))
+        self.urgency_lbl.setText(_translate("MainWindow", "Urgency"))
+        self.urgency_combo.setItemText(0, _translate("MainWindow", "best_effort"))
+        self.save_wkld.setText(_translate("MainWindow", "Save as CSV"))
         self.menuE2C_Sim_Database_Demo.setTitle(_translate("MainWindow", "E2C-Sim Database Demo"))
 
+    def save_wkld_csv(self):
+        for k in range(int(self.amount)):
+            workload = [['instance_id','task_id','name','arrival_time']]
+            with open(f'workloads_created/workload{k+1}.csv', 'w', newline='') as file:
+                writer = csv.writer(file, delimiter=',')
+                for i in range(self.length):
+                    instance_id = self.wk_table_list[k].item(i,0).text()
+                    task_id = self.wk_table_list[k].item(i,1).text()
+                    task_name = self.wk_table_list[k].item(i,2).text()
+                    arrival = self.wk_table_list[k].item(i,3).text()
+                    workload.append([instance_id,task_id,task_name,arrival])
+                
+                writer.writerows(workload)
+                workload.clear()
+                
 
     def add_scen(self):
         scen_task_id = self.scen_task_id.text()
@@ -254,66 +266,14 @@ class Ui_MainWindow(object):
                         self.wk_table_list[k].removeRow(idx-1)
                     self.indexes.clear()
 
-    def update_row(self):
-        self.entry = self.fields.text().split(",")
-        self.data = []
-        
-        if(self.update_to.currentText() == "machine_types"):
-            self.machine_id = int(self.entry[0])
-            self.machine_name = self.entry[1]
-            self.no_of_replicas = int(self.entry[2])
-            self.idle_power = float(self.entry[3])
-            self.max_power = float(self.entry[4])
-            self.num_of_cores = int(self.entry[5])
-            self.cpu_clock = float(self.entry[6])
-            self.memory = float(self.entry[7])
-
-            cur.execute("INSERT INTO machine_types (machine_id,machine_name,no_of_replicas,idle_power,max_power,num_of_cores,cpu_clock,memory)"\
-                        f"VALUES({self.machine_id},'{self.machine_name}',{self.no_of_replicas},{self.idle_power},{self.max_power},{self.num_of_cores},{self.cpu_clock},{self.memory})")
-            conn.commit()
-            # cur.execute("SELECT * FROM machine_types")
-            # print(cur.fetchall())
-
-            deleteTables(cur, conn, "eet")
-            eet = """ CREATE TABLE IF NOT EXISTS eet (
-            task_id INT NOT NULL,
-            machine_id INT NOT NULL,
-            expected_ex_time FLOAT NOT NULL,
-
-            FOREIGN KEY (task_id) REFERENCES task_types(task_id),
-            FOREIGN KEY (machine_id) REFERENCES machine_types(machine_id)
-            ); """
-            createSchema(cur, conn, eet)
-                # --- eet ---
-            # This table is derived from task_types and machine_types
-            task_type_df = pd.read_sql_query(f'SELECT * FROM task_types', conn)
-            machine_type_df = pd.read_sql_query(f'SELECT * FROM machine_types', conn)
-
-            # Cartesian product of task_types and machine_types
-            # (only using attributes we need)
-            eet_list_buff = [
-                (tt, mt) \
-                for tt, _, _, _ in task_type_df.values.tolist() \
-                for mt, _, _, _, _, _, _, _ in machine_type_df.values.tolist()
-            ]
-
-            # Insert randomized eet value for each tuple
-            eet_list = []
-            for entry in eet_list_buff:
-                rnd = round(uniform(MIN_EX, MAX_EX), 2)
-                eet_list.append(entry + (rnd, ))
-
-            # Insert data to the eet table
-            insertData(cur, conn, eet_list, 'eet')
-
-        if(self.update_to.currentText() == "task_types"):
-            self.task_id = int(self.entry[0])
-            self.name = self.entry[1]
-            self.detail = self.entry[2]
-            self.urgency = self.entry[3]
+    def update_task_types(self):
+            self.task_id = int(self.task_id.text())
+            self.name = self.task_name.text()
+            self.detail = self.detail.text()
+            self.urgency_combo = self.urgency_combo.currentText()
 
             cur.execute(f"INSERT INTO task_types (task_id,name,detail,urgency)"\
-            f"VALUES({self.task_id},'{self.name}','{self.detail}','{self.urgency}');")
+            f"VALUES({self.task_id},'{self.name}','{self.detail}','{self.urgency_combo}');")
             conn.commit()
 
             deleteTables(cur, conn, "eet")
@@ -348,34 +308,7 @@ class Ui_MainWindow(object):
             # Insert data to the eet table
             insertData(cur, conn, eet_list, 'eet')
 
-        if(self.update_to.currentText() == "scenario"):
-            self.task_id = int(self.entry[0])
-            self.start_time = float(self.entry[1])
-            self.end_time = float(self.entry[2])
-            self.num_of_tasks = int(self.entry[3])
-            self.dist_id = int(self.entry[4])
-
-            cur.execute("INSERT INTO scenario (task_id,start_time,end_time,num_of_tasks,dist_id)"\
-            f"VALUES({self.task_id},{self.start_time},{self.end_time},{self.num_of_tasks},{self.dist_id});")
-            conn.commit()
-
-        if(self.update_to.currentText() == "distribution"):
-            self.dist_id = int(self.entry[0])
-            self.name = self.entry[1]
-
-            cur.execute("INSERT INTO distribution (dist_id,name)"\
-            f"VALUES({self.dist_id},'{self.name}');")
-            conn.commit()
-
-    def set_update_to(self):
-        if(self.update_to.currentText() == "machine_types"):
-            self.example_field.setText("machine_id,machine_name,no_of_replicas,idle_power,max_power,num_of_cores,cpu_clock,memory")
-        if(self.update_to.currentText() == "task_types"):
-            self.example_field.setText("task_id,name,detail,urgency")
-        if(self.update_to.currentText() == "scenario"):
-            self.example_field.setText("task_id,start_time,end_time,num_of_tasks,dist_id")
-        if(self.update_to.currentText() == "distribution"):
-            self.example_field.setText("dist_id,name")
+            printTable(cur,"task_types")
         
 
     def load_scen(self):
@@ -435,7 +368,8 @@ class Ui_MainWindow(object):
                 self.wk_table.setItem(i,2, QtWidgets.QTableWidgetItem(str(self.name)[2:4]))
                 self.wk_table.setItem(i,3, QtWidgets.QTableWidgetItem(str(self.arrival)[1:-2]))
                 # self.table.setItem(i,4, QtWidgets.QTableWidgetItem(str(self.dist)[1]))
-                
+           
+            print(self.tabWidget.tabText(k)) #need to use this somehow--------------------------------------------------------------------------------------for visibility-----------
             self.tabWidget.addTab(self.tab, f"WL{k+1}")
             self.wk_table_list.append(self.wk_table)
         
