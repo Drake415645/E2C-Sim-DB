@@ -1,0 +1,47 @@
+
+
+*****Task:0 		 ARRIVING  @time:57.296
+BQ = [0]
+
+MACHINES ==>>>
+	Machine m1 :	[[]]
+	Machine m2 :	[[]]
+	Machine m3 :	[[]]
+0 selected --> BQ = []
+executime: {'m1-1': 0.932, 'm2-1': 1.001, 'm3-1': 0.932}	estimeated_time{'m1': 1, 'm2': 1, 'm3': 1}
+[ Task(0), Machine(m1) ]: RUNNING        @time(0.000) exec:0.932 
+task:0  assigned to:m1  delta:102.29599999999999
+
+*****Task:0 		 COMPLETION  @time:0.932
+[ Task(0), Machine(m1) ]: COMPLETED      @time(0.932)
+BQ = []
+
+MACHINES ==>>>
+	Machine m1 :	[[]]
+	Machine m2 :	[[]]
+	Machine m3 :	[[]]
+Machine: m1 (id#0)  
+	%Completion: 100.0 #: 1
+	%XCompletion:0.0 #: 0
+	#Missed URG:0.00
+	Missed BE:0
+	%Energy: 0.0
+	%Wasted Energy: 0.0 
+Machine: m2 (id#1)  
+	%Completion: 0.0 #: 0
+	%XCompletion:0.0 #: 0
+	#Missed URG:0.00
+	Missed BE:0
+	%Energy: 0.0
+	%Wasted Energy: 0.0 
+Machine: m3 (id#2)  
+	%Completion: 0.0 #: 0
+	%XCompletion:0.0 #: 0
+	#Missed URG:0.00
+	Missed BE:0
+	%Energy: 0.0
+	%Wasted Energy: 0.0 
+%Total Completion: 20.0
+%Total xCompletion: 0.0
+%deferred: 0.0
+%dropped: 0.0
