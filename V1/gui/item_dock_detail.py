@@ -744,55 +744,9 @@ class ItemDockDetail(QMainWindow):
                 arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
         self.workload_table.setStyleSheet("background-color: white; selection-background-color: #353535;")
         self.tab_etc  = self.machine_etc(tt,mt)
-        # self.etc_generate = QPushButton('Submit')
 
-        # #add scenario 
-        # self.add_scen_label = QLabel("Create a scenario")
-        # self.db_task_id = QLineEdit()
-        # self.db_task_id.setPlaceholderText("Task ID")
-        # self.db_no_tasks = QLineEdit()
-        # self.db_no_tasks.setPlaceholderText("Num of tasks")
-        # self.db_start_time = QLineEdit()
-        # self.db_start_time.setPlaceholderText("Start time")
-        # self.db_end_time = QLineEdit()
-        # self.db_end_time.setPlaceholderText("End time")
-        # self.db_dist = QComboBox()
-        # self.db_dist.addItem("1. Normal")
-        # self.db_dist.addItem("2. Uniform")
-        # self.db_dist.addItem("3. Exponential")
-        # self.db_dist.addItem("4. Spiked")
-        # self.db_no_scen = QPushButton("Add scenario")
-
-        #combo box that selects between task types and a qlineedit that changes its deadline
-        # self.new_deadline_label = QLabel("Change deadline of task type")
-        # self.tasks_combo = QComboBox()
-        # for i in range(len(config.task_type_names)):
-        #     self.tasks_combo.addItem(f'{config.task_type_names[i]}')
-        # self.new_task_deadline = QLineEdit()
-        # self.new_task_deadline.setPlaceholderText("Deadline")
-        # self.submit_new_deadline = QPushButton("Submit Deadline")
-
-        #combo box for selecting and removing a machine type
-        # self.remove_machine_label = QLabel("Remove a machine type")
-        # self.remove_machine_combo = QComboBox()
-        # for i in range(len(config.machine_types)):
-        #     self.remove_machine_combo.addItem(f'{config.machine_type_names[i]}')
-        # self.remove_machine_submit = QPushButton("Remove machine type")
-
-        #add a machine type and its properties
-        # self.add_machine_label = QLabel("Add a machine type")
-        # self.add_machine_name = QLineEdit()
-        # self.add_machine_name.setPlaceholderText("Machine name")
-        # self.add_machine_power = QLineEdit()
-        # self.add_machine_power.setPlaceholderText("Machine power")
-        # self.add_machine_idle = QLineEdit()
-        # self.add_machine_idle.setPlaceholderText("Idle power")
-        # self.add_machine_replicas = QLineEdit()
-        # self.add_machine_replicas.setPlaceholderText("# of replicas")
-        # self.add_machine_submit = QPushButton("Submit machine")
-
-        #open new window for generating scenario
         self.open_scen_window = QPushButton("Generate New Workload")
+        self.workload_generator = QPushButton("Generate Workload")
 
         self.tab_workload.layout.addWidget(self.tab_etc)
         
@@ -804,29 +758,8 @@ class ItemDockDetail(QMainWindow):
         self.tab_workload.layout.addLayout(self.workload_grid) 
 
         self.btns_grid.addWidget(self.etc_edit, 0,0)
-        # self.btns_grid.addWidget(self.etc_generate,0,1)
 
-        self.btns_grid.addWidget(self.open_scen_window, 1,0)
-        # self.btns_grid.addWidget(self.add_scen_label, 1,0)
-        # self.btns_grid.addWidget(self.db_task_id, 2,0)
-        # self.btns_grid.addWidget(self.db_no_tasks, 2,1)
-        # self.btns_grid.addWidget(self.db_start_time, 3,0)
-        # self.btns_grid.addWidget(self.db_end_time, 3,1)
-        # self.btns_grid.addWidget(self.db_dist, 4,0)
-        # self.btns_grid.addWidget(self.db_no_scen, 4,1)
-        # self.btns_grid.addWidget(self.new_deadline_label, 5,0)
-        # self.btns_grid.addWidget(self.tasks_combo, 6,0)
-        # self.btns_grid.addWidget(self.new_task_deadline, 6,1)
-        # self.btns_grid.addWidget(self.submit_new_deadline, 7,1)
-        # self.btns_grid.addWidget(self.remove_machine_label, 8,0)
-        # self.btns_grid.addWidget(self.remove_machine_combo, 9,0)
-        # self.btns_grid.addWidget(self.remove_machine_submit, 9,1)
-        # self.btns_grid.addWidget(self.add_machine_label, 10,0)
-        # self.btns_grid.addWidget(self.add_machine_name, 11,0)
-        # self.btns_grid.addWidget(self.add_machine_power, 11,1)
-        # self.btns_grid.addWidget(self.add_machine_idle, 12,0)
-        # self.btns_grid.addWidget(self.add_machine_replicas, 12,1)
-        # self.btns_grid.addWidget(self.add_machine_submit, 13,1)
+        self.btns_grid.addWidget(self.workload_generator,1,0)
 
         self.spaceItem = QSpacerItem(100, 25, QSizePolicy.Expanding)
         self.tab_workload.layout.addSpacerItem(self.spaceItem)
@@ -860,18 +793,18 @@ class ItemDockDetail(QMainWindow):
                 arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
         #print('wl_path set in dock: ',self.workload_path)
 
-    def rewrite_workload_table(self):  
-        with open(self.workload_path,'r') as workload:
-            workload_reader = csv.reader(workload)     
-            next(workload_reader)        
-            for idx, row in enumerate(workload_reader):                                
-                self.workload_table.setRowCount(idx+1)
-                type_item = QTableWidgetItem(row[0])       
-                arrival_item = QTableWidgetItem(str(row[1]))
-                self.workload_table.setItem(idx, 0, type_item)
-                self.workload_table.setItem(idx, 1, arrival_item)
-                type_item.setFlags(type_item.flags() ^ Qt.ItemIsEditable)
-                arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
+    # def rewrite_workload_table(self):  
+    #     with open(self.workload_path,'r') as workload:
+    #         workload_reader = csv.reader(workload)     
+    #         next(workload_reader)        
+    #         for idx, row in enumerate(workload_reader):                                
+    #             self.workload_table.setRowCount(idx+1)
+    #             type_item = QTableWidgetItem(row[0])       
+    #             arrival_item = QTableWidgetItem(str(row[1]))
+    #             self.workload_table.setItem(idx, 0, type_item)
+    #             self.workload_table.setItem(idx, 1, arrival_item)
+    #             type_item.setFlags(type_item.flags() ^ Qt.ItemIsEditable)
+    #             arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
 
     
     #function thats tied to the button from simui which repopulates wkload table based on db table
@@ -885,6 +818,8 @@ class ItemDockDetail(QMainWindow):
             self.workload_table.setItem(idx, 1, arrival_item)
             type_item.setFlags(type_item.flags() ^ Qt.ItemIsEditable)
             arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
+
+
     
                
 class MyDelegate(QItemDelegate):

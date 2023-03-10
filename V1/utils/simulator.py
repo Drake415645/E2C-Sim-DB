@@ -41,8 +41,7 @@ class Simulator(QObject):
     def __init__(self, path_to_arrivals, path_to_etc, path_to_reports, seed=1):     
         super(Simulator, self).__init__()  
 
-        # db_path = CURR_PATH + './utils/e2cDB.db'  #doesnt work on linux? or only my machine?
-        db_path = './utils/e2cDB.db' #this works on linux
+        db_path = './utils/e2cDB.db' 
         self.conn = sq.connect(db_path)
         self.cur = self.conn.cursor()
 
@@ -82,7 +81,7 @@ class Simulator(QObject):
         # arrivals = pd.read_csv(self.path_to_arrivals) 
         etc = pd.read_csv(self.path_to_etc,index_col=0)
         arrivals = self.arrivals
-        
+
         execution_time = ExecutionTime(self.seed)
         with open(f'{os.path.dirname(self.path_to_etc)}/execution_times.csv','w') as et_file:
             et_writer = csv.writer(et_file)
@@ -109,7 +108,6 @@ class Simulator(QObject):
             
                 type = config.find_task_type(task_type_name)
 
-                # type.deadline = float(5) #----------------------------this is successful, just find out how to change them upon submitting instead and based off of user choice of type
 
                 self.tasks.append(Task(task_id, type, estimated_times,
                                         execution_times, arrival_time))
