@@ -7,6 +7,7 @@ from utils.utilities import *
 from utils.initTables import *
 from utils.initTables import initTables
 from utils.machine_type import MachineType
+from utils.machine import Machine
 from utils.task_type import TaskType, UrgencyLevel
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -465,16 +466,17 @@ class SimUi(QMainWindow):
             if self.workload_gen_window.display_tt_table.item(row,1).text() == tt_removed:
                 self.workload_gen_window.display_tt_table.removeRow(row)
 
-                for row in range(self.workload_gen_window.display_tt_table.rowCount()):
-                    self.workload_gen_window.display_tt_table.setItem(row,0,QTableWidgetItem(str(config.task_types[row].id)))
+                for row2 in range(self.workload_gen_window.display_tt_table.rowCount()):
+                    self.workload_gen_window.display_tt_table.setItem(row2,0,QTableWidgetItem(str(config.task_types[row2].id)))
 
                 self.workload_gen_window.eet_table.removeRow(row)
                 self.workload_gen_window.remove_tt_combo.removeItem(row)
+                self.workload_gen_window.add_scen_tt.removeItem(row)
                 self.workload_gen_window.remove_tt_combo.setCurrentIndex(0)
                 return
 
     def add_mt(self):
-        mt_id = (len(config.machine_types)) + 1
+        mt_id = (len(config.machine_types))
         mt_name = self.workload_gen_window.add_mt_name.text()
         mt_power = self.workload_gen_window.add_mt_power.text()
         mt_idle_power = self.workload_gen_window.add_mt_idle.text()
@@ -482,8 +484,23 @@ class SimUi(QMainWindow):
 
         config.machine_types.append(MachineType(mt_id,mt_name,float(mt_power),
                                     float(mt_idle_power),int(mt_replicas)))
+        
         config.machine_type_names.append(mt_name)
 
+        # config.no_of_machines = config.no_of_machines + int(mt_replicas)
+        config.no_of_machines = config.no_of_machines + 1
+
+        # for r in range(int(mt_replicas)):
+        #     config.machines.append(Machine(len(config.machines), r+1, config.machine_types[-1],
+        #                                 {'power': float(mt_power), 'idle_power': float(mt_idle_power)}))
+
+        config.machines.append(Machine(len(config.machines), 1, config.machine_types[-1],
+                                        {'power': float(mt_power), 'idle_power': float(mt_idle_power)}))
+
+        self.gv.machine_queues.m_queues[mt_id] = []            
+        self.gv.machine_queues.m_runnings[mt_id] = []
+
+        #----------visual tables----------------------
         row_count = self.workload_gen_window.display_mt_table.rowCount()
         self.workload_gen_window.display_mt_table.insertRow(row_count)
 
@@ -501,16 +518,28 @@ class SimUi(QMainWindow):
         for i in range(self.workload_gen_window.eet_table.rowCount()):
             self.workload_gen_window.eet_table.setItem(i,col_count,QTableWidgetItem("0"))
 
+
     def remove_mt(self):
         mt_removed = self.workload_gen_window.remove_mt_combo.currentText()
+
         for mt in config.machine_types:
             if mt_removed == mt.name:
                 for mt_id in config.machine_types[config.machine_types.index(mt):]:
                     mt_id.id = mt_id.id - 1
+                # config.no_of_machines = config.no_of_machines - 1
                 config.machine_types.remove(mt)
+
+        config.no_of_machines = config.no_of_machines - 1
+
         for mt in config.machine_type_names:
             if mt_removed == mt:
                 config.machine_type_names.remove(mt)
+
+        for m in config.machines:
+            if mt_removed == m.type.name:
+                for m_id in config.machines[config.machines.index(m):]:
+                    m_id.id = m_id.id - 1
+                config.machines.remove(m)
 
         print(config.machine_type_names)
 
@@ -519,14 +548,18 @@ class SimUi(QMainWindow):
                 self.workload_gen_window.display_mt_table.removeRow(row)
                 self.workload_gen_window.remove_mt_combo.removeItem(row)
                 self.workload_gen_window.remove_mt_combo.setCurrentIndex(0)
-                return
+
+                for col in range(self.workload_gen_window.eet_table.columnCount()):
+                    if self.workload_gen_window.eet_table.horizontalHeaderItem(col).text() == mt_removed:
+                        self.workload_gen_window.eet_table.removeColumn(col)
+                        return
 
     def add_scen(self):
         self.db_scen = [str(self.workload_gen_window.add_scen_tt.currentText()),
                         int(self.workload_gen_window.add_scen_num_tasks.text()),
                         float(self.workload_gen_window.add_scen_start_time.text()),
                         float(self.workload_gen_window.add_scen_end_time.text()),
-                        int(self.workload_gen_window.add_scen_dist.currentText()[0])]
+                        (self.workload_gen_window.add_scen_dist.currentText())]
         
         row_count = self.workload_gen_window.display_scen_table.rowCount()
         self.workload_gen_window.display_scen_table.insertRow(row_count)
@@ -536,7 +569,7 @@ class SimUi(QMainWindow):
         self.workload_gen_window.display_scen_table.setItem(row_count,2,QTableWidgetItem(str(self.db_scen[2])))
         self.workload_gen_window.display_scen_table.setItem(row_count,3,QTableWidgetItem(str(self.db_scen[3])))
         self.workload_gen_window.display_scen_table.setItem(row_count,4,
-                                            QTableWidgetItem(str(self.workload_gen_window.add_scen_dist.currentText())))
+                                            QTableWidgetItem(self.workload_gen_window.add_scen_dist.currentText()))
     
         self.db_scens.append(self.db_scen)
 
@@ -615,8 +648,16 @@ class SimUi(QMainWindow):
             self.db_no_tasks = i[1]
             self.db_start_time = i[2]
             self.db_end_time = i[3]
-            self.db_dist = i[4]
-
+            self.db_dist = 0
+            if i[4] == "Normal":
+                self.db_dist = 1
+            elif i[4] == "Uniform":
+                self.db_dist = 2
+            elif i[4] == "Exponential":
+                self.db_dist = 3
+            elif i[4] == "Spiked":
+                self.db_dist = 4
+                
             self.arrival_times = fetchArrivals(self.db_start_time, self.db_end_time, self.db_no_tasks, self.db_dist, self.cur)
 
             for j in range(self.db_no_tasks):
@@ -645,7 +686,17 @@ class SimUi(QMainWindow):
             self.db_no_tasks = i[1]
             self.db_start_time = i[2]
             self.db_end_time = i[3]
-            self.db_dist = i[4]
+            self.db_dist = 0
+            if i[4] == "Normal":
+                self.db_dist = 1
+            elif i[4] == "Uniform":
+                self.db_dist = 2
+            elif i[4] == "Exponential":
+                self.db_dist = 3
+            elif i[4] == "Spiked":
+                self.db_dist = 4
+
+            print(self.db_dist)
 
             self.arrival_times = fetchArrivals(self.db_start_time, self.db_end_time, self.db_no_tasks, self.db_dist, self.cur)
 
@@ -906,7 +957,7 @@ class SimUi(QMainWindow):
         self.gv.machine_queues.outer_frame()
         self.gv.machine_queues.draw_queues()
         self.gv.machine_queues.fill_queues()
-        self.gv.machine_queues.runnings()        
+        self.gv.machine_queues.runnings(config.machines)        
         self.gv.machine_queues.trash()
 
         try:
@@ -1032,7 +1083,7 @@ class SimUi(QMainWindow):
         self.gv.machine_queues.outer_frame()
         self.gv.machine_queues.draw_queues()
         self.gv.machine_queues.fill_queues()
-        self.gv.machine_queues.runnings()
+        self.gv.machine_queues.runnings(config.machines)
         self.gv.machine_queues.trash()
         self.update()
     

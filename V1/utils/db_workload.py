@@ -99,6 +99,7 @@ def createWorkload(cur, conn, num_wl):
 def fetchArrivals(start_time, end_time, num_of_tasks, dist_id, cur):
     cur.execute(f"SELECT name FROM distribution WHERE dist_id = '{dist_id}';")
     dist_name = cur.fetchall()
+    # print(dist_name)
     dist_name = dist_name[0][0]
 
     # scale = start_time + ((end_time - start_time) / 2)

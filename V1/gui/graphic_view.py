@@ -102,7 +102,7 @@ class GraphicView(QGraphicsView):
         self.machine_queues.outer_frame()
         self.machine_queues.draw_queues()
         self.machine_queues.fill_queues()
-        self.machine_queues.runnings()
+        self.machine_queues.runnings(machines)
         self.machine_queues.trash()
         self.display_time(0.0)
         #self.display_logos()
