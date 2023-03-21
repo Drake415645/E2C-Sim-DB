@@ -94,6 +94,9 @@ def createWorkload(cur, conn, num_wl):
     # Merge list into workload table
     insertData(cur, conn, workload, 'workload')
 
+def get_data_sizes(data_size,stdv,num_of_tasks):
+        return (np.random.normal(data_size, stdv, num_of_tasks)).tolist()
+
 # Creates list of task instances from distribution scheme
 # [int] fetchArrivals(float, float, int, int, Cursor)
 def fetchArrivals(start_time, end_time, num_of_tasks, dist_id, cur):
@@ -130,9 +133,10 @@ def fetchArrivals(start_time, end_time, num_of_tasks, dist_id, cur):
         mu = (start_time + end_time) / 2.0
         sigma = (end_time - start_time) / 6.0
 
-        distribution = np.random.normal(mu, sigma, num_of_tasks)       
+        distribution = np.random.normal(mu, sigma, num_of_tasks)
         distribution[distribution > end_time] = end_time
         distribution[distribution < start_time] = start_time
+        
         distribution = [round(x, 3) for x in distribution]
 
         return distribution
