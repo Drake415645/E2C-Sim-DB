@@ -38,6 +38,7 @@ from gui.workload_gen import WorkloadGenerator
 import utils.config as config
 from utils.task import Task
 from utils.event_queue import EventQueue
+from gui.downloader import Downloader
 import pandas as pd
 import random
 import sqlite3 as sq
@@ -414,13 +415,50 @@ class SimUi(QMainWindow):
     
 
     def save_eet_file(self):
-        print("")
+        eet_df = pd.DataFrame(columns=['task_type'])
+        eet = self.workload_gen_window.eet_table
+        data = []
+
+        for col in range(eet.columnCount()):
+            eet_df[f'{eet.horizontalHeaderItem(col).text()}'] = None
+
+        for row in range(eet.rowCount()):
+            data.append(eet.verticalHeaderItem(row).text())
+            for col in range(eet.columnCount()):
+                data.append(eet.item(row,col).text())
+            eet_df.loc[len(eet_df)] = data
+            data.clear()
+
+        self.dialog = Downloader(eet_df, "EET")
+        print(eet_df)
     
     def save_wkld_file(self):
-        print("")
+        wkld_df = pd.DataFrame(columns=['task_type','data_size','arrival_time','deadline'])
+        wkld = self.workload_gen_window.wkld_table
+        data = []
+
+        for row in range(wkld.rowCount()):
+            for col in range(wkld.columnCount()):
+                data.append(wkld.item(row,col).text())
+            wkld_df.loc[len(wkld_df)] = data
+            data.clear()
+
+        self.dialog = Downloader(wkld_df, "Workload")
+        print(wkld_df)
 
     def save_scen_file(self):
-        print("")
+        scen_df = pd.DataFrame(columns=['task_type','num_of_tasks','start_time','end_time','distribution'])
+        scen = self.workload_gen_window.display_scen_table
+        data = []
+
+        for row in range(scen.rowCount()):
+            for col in range(scen.columnCount()):
+                data.append(scen.item(row,col).text())
+            scen_df.loc[len(scen_df)] = data
+            data.clear()
+        
+        self.dialog = Downloader(scen_df, "Scenario")
+        print(scen_df)
 
     def edit_eet_table(self):
         self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
