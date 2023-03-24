@@ -724,9 +724,9 @@ class ItemDockDetail(QMainWindow):
         delegate = MyDelegate()
         self.workload_table.setItemDelegate(delegate) 
         self.workload_table.setRowCount(0) 
-        self.workload_table.setColumnCount(2) 
+        self.workload_table.setColumnCount(4) 
 
-        self.workload_table.setHorizontalHeaderLabels(['Task Type', 'Arrival Time'])
+        self.workload_table.setHorizontalHeaderLabels(['Task Type','Data Size', 'Arrival Time', 'Deadline'])
         self.workload_table.horizontalHeader().setStretchLastSection(True)
         self.workload_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)        
         with open(self.workload_path,'r') as workload:
@@ -739,7 +739,7 @@ class ItemDockDetail(QMainWindow):
                 arrival_item = QTableWidgetItem(str(row[1]))
 
                 self.workload_table.setItem(idx, 0, type_item)
-                self.workload_table.setItem(idx, 1, arrival_item )            
+                self.workload_table.setItem(idx, 2, arrival_item )            
                 type_item.setFlags(type_item.flags() ^ Qt.ItemIsEditable)
                 arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
         self.workload_table.setStyleSheet("background-color: white; selection-background-color: #353535;")
@@ -793,19 +793,6 @@ class ItemDockDetail(QMainWindow):
                 arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
         #print('wl_path set in dock: ',self.workload_path)
 
-    # def rewrite_workload_table(self):  
-    #     with open(self.workload_path,'r') as workload:
-    #         workload_reader = csv.reader(workload)     
-    #         next(workload_reader)        
-    #         for idx, row in enumerate(workload_reader):                                
-    #             self.workload_table.setRowCount(idx+1)
-    #             type_item = QTableWidgetItem(row[0])       
-    #             arrival_item = QTableWidgetItem(str(row[1]))
-    #             self.workload_table.setItem(idx, 0, type_item)
-    #             self.workload_table.setItem(idx, 1, arrival_item)
-    #             type_item.setFlags(type_item.flags() ^ Qt.ItemIsEditable)
-    #             arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
-
     
     #function thats tied to the button from simui which repopulates wkload table based on db table
     def rewrite_from_db(self, arrivals):
@@ -815,7 +802,7 @@ class ItemDockDetail(QMainWindow):
             type_item = QTableWidgetItem(row["task_type"])       
             arrival_item = QTableWidgetItem(str(row["arrival_time"]))
             self.workload_table.setItem(idx, 0, type_item)
-            self.workload_table.setItem(idx, 1, arrival_item)
+            self.workload_table.setItem(idx, 2, arrival_item)
             type_item.setFlags(type_item.flags() ^ Qt.ItemIsEditable)
             arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
 

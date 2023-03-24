@@ -501,6 +501,13 @@ class SimUi(QMainWindow):
                     tt.deadline = deadline
 
         self.workload_gen_window.display_tt_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Task Type table successfully updated.")
+        msg.setWindowTitle("Task Types")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
     
     def edit_mt_submit(self):
         table = self.workload_gen_window.display_mt_table
@@ -528,6 +535,13 @@ class SimUi(QMainWindow):
             mt[row].replicas = replicas
 
         self.workload_gen_window.display_mt_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Machine Type table successfully updated.")
+        msg.setWindowTitle("Machine Types")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
     def eet_table_reset(self):
         self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -806,7 +820,7 @@ class SimUi(QMainWindow):
 
         # workload = pd.read_sql_query("SELECT * FROM workload", self.conn)
         self.dock_right.rewrite_from_db(self.arrivals)
-        self.rewrite_gen_window(self.arrivals)                     #---------------need data size & deadline too
+        self.rewrite_gen_window(self.arrivals)                   
 
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
@@ -905,7 +919,7 @@ class SimUi(QMainWindow):
                 count = arrivals['task_type'].value_counts()[f'{self.workload_gen_window.display_tt_table.item(tt,1).text()}']
                 data_size = float(self.workload_gen_window.display_tt_table.item(tt,3).text())
                 #dynamically change stdev so we always get positive data size based on mean data size value? ----------------------------------fix this later--------------------------------------------
-                stdv = 0.5
+                stdv = data_size / 6
                 #dist is a list of data sizes (KB) based around a mean value given as data_size for each task type
                 dist = get_data_sizes(data_size,stdv,count)
 
@@ -913,12 +927,15 @@ class SimUi(QMainWindow):
                 for wkl_row in range(self.workload_gen_window.wkld_table.rowCount()):
                     if self.workload_gen_window.wkld_table.item(wkl_row,0).text() == self.workload_gen_window.display_tt_table.item(tt,1).text():
                         self.workload_gen_window.wkld_table.setItem(wkl_row,1,QTableWidgetItem(str(round(dist[i],3))))
+                        self.dock_right.workload_table.setItem(wkl_row,1,QTableWidgetItem(str(round(dist[i],3))))
+
 
                         #for deadline
                         arr_time = float(self.workload_gen_window.wkld_table.item(wkl_row,2).text())
                         deadline = float(self.workload_gen_window.display_tt_table.item(tt,5).text())
                         real_dl = round((deadline + arr_time),3)
                         self.workload_gen_window.wkld_table.setItem(wkl_row,3,QTableWidgetItem(str(real_dl)))
+                        self.dock_right.workload_table.setItem(wkl_row,3,QTableWidgetItem(str(real_dl)))
 
                         i = i + 1
 
