@@ -153,15 +153,15 @@ class WorkloadGenerator(QMainWindow):
         self.display_tt_table = QTableWidget()
         self.display_tt_table.setColumnCount(6)
         self.display_tt_table.setRowCount(len(config.task_types))          #------------make sure to change this upon adding or removing tts
-        self.display_tt_table.setHorizontalHeaderLabels(["Id","Name","Data Type","Data Size (KB)","Urgency","Deadline"])
-        default_data_types = ["image","audio","face recognition","text"]
+        self.display_tt_table.setHorizontalHeaderLabels(["Id","Name","Data Input","Mean Data Size (KB)","Urgency","Deadline"])
+        default_data_inputs = ["image","audio","face recognition","text"]
         default_data_sizes = ["10.0","5.5","7.0","2.8"]
         for i in range(len(config.task_types)):
             id = QTableWidgetItem(str(config.task_types[i].id))
             id.setFlags(id.flags() ^ Qt.ItemIsEditable)
             self.display_tt_table.setItem(i,0,id)
             self.display_tt_table.setItem(i,1,QTableWidgetItem(str(config.task_types[i].name)))
-            self.display_tt_table.setItem(i,2,QTableWidgetItem(random.choice(default_data_types)))
+            self.display_tt_table.setItem(i,2,QTableWidgetItem(random.choice(default_data_inputs)))
             self.display_tt_table.setItem(i,3,QTableWidgetItem(random.choice(default_data_sizes)))
             if config.task_types[i].urgency == UrgencyLevel.BESTEFFORT:
                 self.display_tt_table.setItem(i,4,QTableWidgetItem("BestEffort"))
@@ -169,6 +169,7 @@ class WorkloadGenerator(QMainWindow):
                 self.display_tt_table.setItem(i,4,QTableWidgetItem("Urgent"))
             self.display_tt_table.setItem(i,5,QTableWidgetItem(str(config.task_types[i].deadline)))
         self.display_tt_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.display_tt_table.verticalHeader().setVisible(False)
 
         header = self.display_tt_table.horizontalHeader()       
         header.setSectionResizeMode(0, QHeaderView.Stretch)
@@ -177,22 +178,29 @@ class WorkloadGenerator(QMainWindow):
         header.setSectionResizeMode(3, QHeaderView.Stretch)
         header.setSectionResizeMode(4, QHeaderView.Stretch)
         header.setSectionResizeMode(5, QHeaderView.Stretch)
-
+        self.display_tt_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
 
         self.tt_h_layout = QHBoxLayout()
         self.edit_tt_table = QPushButton("Edit Table Values")
         self.edit_tt_submit = QPushButton("Submit Edit Changes")
-        self.tt_h_layout.addWidget(self.edit_tt_table)
+        # self.tt_h_layout.addWidget(self.edit_tt_table)
         self.tt_h_layout.addWidget(self.edit_tt_submit)
+
+        self.di_h_layout = QHBoxLayout()
+        self.add_di_lbl = QLabel("Add New Data Input")
+        self.add_di = QLineEdit()
+        self.add_di_submit = QPushButton("Add")
+        self.di_h_layout.addWidget(self.add_di)
+        self.di_h_layout.addWidget(self.add_di_submit)
 
         self.add_tt_lbl = QLabel("Add Task Type")
         self.add_tt_lbl.setStyleSheet("font-weight: bold")
         self.add_tt_name_lbl = QLabel("Task Type Name")
         self.add_tt_name = QLineEdit()
-        self.add_tt_dt_lbl = QLabel("Data Type")
+        self.add_tt_dt_lbl = QLabel("Data Input")
         self.add_tt_dt = QComboBox()
-        self.add_tt_dt.addItems(default_data_types)
-        self.add_tt_ds_lbl = QLabel("Data Size (KB)")
+        self.add_tt_dt.addItems(default_data_inputs)
+        self.add_tt_ds_lbl = QLabel("Mean Data Size (KB)")
         self.add_tt_ds = QLineEdit()
         self.add_tt_urgency_lbl = QLabel("Urgency")
         self.add_tt_urgency = QComboBox()
@@ -220,6 +228,8 @@ class WorkloadGenerator(QMainWindow):
         self.main_layout.addWidget(self.add_tt_dt)
         self.main_layout.addWidget(self.add_tt_ds_lbl)
         self.main_layout.addWidget(self.add_tt_ds)
+        self.main_layout.addWidget(self.add_di_lbl)
+        self.main_layout.addLayout(self.di_h_layout)
         self.main_layout.addWidget(self.add_tt_urgency_lbl)
         self.main_layout.addWidget(self.add_tt_urgency)
         self.main_layout.addWidget(self.add_tt_deadline_lbl)
@@ -255,12 +265,12 @@ class WorkloadGenerator(QMainWindow):
         header.setSectionResizeMode(1, QHeaderView.Stretch)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
         header.setSectionResizeMode(3, QHeaderView.Stretch)
-
+        self.display_mt_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
 
         self.mt_h_layout = QHBoxLayout()
         self.edit_mt_table = QPushButton("Edit Table Values")
         self.edit_mt_submit = QPushButton("Submit Edit Changes")
-        self.mt_h_layout.addWidget(self.edit_mt_table)
+        # self.mt_h_layout.addWidget(self.edit_mt_table)
         self.mt_h_layout.addWidget(self.edit_mt_submit)
 
         self.add_mt_lbl = QLabel("Add Machine Type")
@@ -340,11 +350,11 @@ class WorkloadGenerator(QMainWindow):
         self.add_scen_dist.addItem("Normal")
         self.add_scen_dist.addItem("Uniform")
         self.add_scen_dist.addItem("Exponential")
-        self.add_scen_dist.addItem("Spiked")
+        self.add_scen_dist.addItem("Spiky")
         self.add_scen_submit = QPushButton("Add")
         self.save_scen_lbl = QLabel("Save Scenario File")
         self.save_scen_lbl.setStyleSheet("font-weight: bold")
-        self.save_scen = QPushButton("Save")
+        self.save_scen = QPushButton("Save as CSV File")
 
         self.reset_scen_lbl = QLabel("Reset Scenario")
         self.reset_scen_lbl.setStyleSheet('font-weight: bold')
@@ -352,7 +362,7 @@ class WorkloadGenerator(QMainWindow):
 
         self.generate_wkld_lbl = QLabel("Generate Workload Using Current Scenario")
         self.generate_wkld_lbl.setStyleSheet('font-weight: bold')
-        self.generate_wkld_submit = QPushButton("Generate")
+        self.generate_wkld_submit = QPushButton("Generate Workload")
 
         self.main_layout.addWidget(self.display_scen_lbl)
         self.main_layout.addWidget(self.display_scen_table)
@@ -400,7 +410,7 @@ class WorkloadGenerator(QMainWindow):
         
         self.save_wkld_lbl = QLabel("Save Workload File")
         self.save_wkld_lbl.setStyleSheet('font-weight: bold')
-        self.save_wkld = QPushButton("Save")
+        self.save_wkld = QPushButton("Save as CSV File")
                                                           #------------rows will only be set upon pressing submit for scenarios
 
         self.main_layout.addWidget(self.wkld_lbl)
@@ -426,6 +436,7 @@ class WorkloadGenerator(QMainWindow):
         self.eet_table.setHorizontalHeaderLabels(config.machine_type_names)
         self.eet_table.setVerticalHeaderLabels(config.task_type_names)
         self.eet_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.eet_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
 
         for i in range(self.eet_table.rowCount()):
             for j in range(self.eet_table.columnCount()):
@@ -435,13 +446,13 @@ class WorkloadGenerator(QMainWindow):
         self.eet_table_edit = QPushButton("Edit EET")
         self.eet_table_submit = QPushButton("Submit EET")
         self.eet_table_reset = QPushButton("Reset")
-        self.horizontal_layout.addWidget(self.eet_table_edit)
+        # self.horizontal_layout.addWidget(self.eet_table_edit)
         self.horizontal_layout.addWidget(self.eet_table_submit)
         self.horizontal_layout.addWidget(self.eet_table_reset)
 
         self.save_eet_lbl = QLabel("Save EET File")
         self.save_eet_lbl.setStyleSheet('font-weight: bold')
-        self.save_eet = QPushButton("Save")
+        self.save_eet = QPushButton("Save as CSV File")
             
         self.main_layout.addWidget(self.eet_lbl)
         self.main_layout.addWidget(self.eet_table)

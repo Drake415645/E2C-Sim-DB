@@ -38,7 +38,7 @@ from gui.workload_gen import WorkloadGenerator
 import utils.config as config
 from utils.task import Task
 from utils.event_queue import EventQueue
-from gui.downloader import Downloader
+from gui.gen_downloader import Downloader
 import pandas as pd
 import random
 import sqlite3 as sq
@@ -243,20 +243,21 @@ class SimUi(QMainWindow):
         self.workload_gen_window.add_scen_submit.clicked.connect(self.add_scen)
         self.workload_gen_window.reset_scen_btn.clicked.connect(self.reset_scen)
         self.workload_gen_window.generate_wkld_submit.clicked.connect(self.generate_workload)
-        self.workload_gen_window.eet_table_edit.clicked.connect(self.edit_eet_table)
+        # self.workload_gen_window.eet_table_edit.clicked.connect(self.edit_eet_table)
         self.workload_gen_window.eet_table_reset.clicked.connect(self.eet_table_reset)
         self.workload_gen_window.eet_table_submit.clicked.connect(self.set_etc)
         self.workload_gen_window.add_tt_submit.clicked.connect(self.add_tt)
         self.workload_gen_window.remove_tt_submit.clicked.connect(self.remove_tt)
         self.workload_gen_window.add_mt_submit.clicked.connect(self.add_mt)
         self.workload_gen_window.remove_mt_submit.clicked.connect(self.remove_mt)
-        self.workload_gen_window.edit_tt_table.clicked.connect(self.edit_tt_table)
+        # self.workload_gen_window.edit_tt_table.clicked.connect(self.edit_tt_table)
         self.workload_gen_window.edit_tt_submit.clicked.connect(self.edit_tt_submit)
-        self.workload_gen_window.edit_mt_table.clicked.connect(self.edit_mt_table)
+        # self.workload_gen_window.edit_mt_table.clicked.connect(self.edit_mt_table)
         self.workload_gen_window.edit_mt_submit.clicked.connect(self.edit_mt_submit)
         self.workload_gen_window.save_eet.clicked.connect(self.save_eet_file)
         self.workload_gen_window.save_wkld.clicked.connect(self.save_wkld_file)
         self.workload_gen_window.save_scen.clicked.connect(self.save_scen_file)
+        self.workload_gen_window.add_di_submit.clicked.connect(self.add_di)
 
     def rb_policy_state(self, rb):        
         if rb.isChecked():
@@ -460,14 +461,24 @@ class SimUi(QMainWindow):
         self.dialog = Downloader(scen_df, "Scenario")
         print(scen_df)
 
-    def edit_eet_table(self):
-        self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
+    def add_di(self):
+        self.workload_gen_window.add_tt_dt.addItem(self.workload_gen_window.add_di.text())
 
-    def edit_tt_table(self):
-        self.workload_gen_window.display_tt_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Data Input successfully added to selection box.")
+        msg.setWindowTitle("New Data Input")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
-    def edit_mt_table(self):
-        self.workload_gen_window.display_mt_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
+    # def edit_eet_table(self):
+    #     self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
+
+    # def edit_tt_table(self):
+    #     self.workload_gen_window.display_tt_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
+
+    # def edit_mt_table(self):
+    #     self.workload_gen_window.display_mt_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
 
     def edit_tt_submit(self):
         table = self.workload_gen_window.display_tt_table
@@ -475,7 +486,7 @@ class SimUi(QMainWindow):
         for row in range(table.rowCount()):
             id = int(table.item(row,0).text())
             name = table.item(row,1).text()
-            data_type = table.item(row,2).text()
+            data_input = table.item(row,2).text()
             data_size = float(table.item(row,3).text())
             urgency = table.item(row,4).text()
             deadline = float(table.item(row,5).text())
@@ -500,7 +511,7 @@ class SimUi(QMainWindow):
                         tt.urgency = UrgencyLevel.URGENT
                     tt.deadline = deadline
 
-        self.workload_gen_window.display_tt_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # self.workload_gen_window.display_tt_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
@@ -534,7 +545,7 @@ class SimUi(QMainWindow):
             mt[row].idle_power = idle
             mt[row].replicas = replicas
 
-        self.workload_gen_window.display_mt_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # self.workload_gen_window.display_mt_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
@@ -544,7 +555,7 @@ class SimUi(QMainWindow):
         msg.exec_()
 
     def eet_table_reset(self):
-        self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         for i in range(self.workload_gen_window.eet_table.rowCount()):
             for j in range(self.workload_gen_window.eet_table.columnCount()):
                 self.workload_gen_window.eet_table.setItem(i,j, QTableWidgetItem("0"))
@@ -783,11 +794,28 @@ class SimUi(QMainWindow):
         msg.setIcon(QMessageBox.Information)
         msg.setText("EET has been successfully submitted.")
         msg.setWindowTitle("EET Submitted")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        button1 = msg.button(QMessageBox.Ok)
+        button1.setText('Keep Workload Generator Window Open')
+        button2 = msg.button(QMessageBox.Cancel)
+        button2.setText('Close Window')
+        input = msg.exec_()
+
+        if input == QMessageBox.Cancel:
+            self.workload_gen_window.close()
 
 
-    def generate_workload(self): 
+    def generate_workload(self):
+        #make sure scenario isnt empty
+        if self.workload_gen_window.display_scen_table.rowCount() <= 0:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Error: Scenario is empty.")
+            msg.setWindowTitle("Workload Generate Error")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+            return
+
         initTables(self.cur,self.conn)
         self.cur.execute("DELETE FROM workload;")
         self.arrivals = pd.DataFrame(columns=["task_type","arrival_time"])
@@ -805,7 +833,7 @@ class SimUi(QMainWindow):
                 self.db_dist = 2
             elif i[4] == "Exponential":
                 self.db_dist = 3
-            elif i[4] == "Spiked":
+            elif i[4] == "Spiky":
                 self.db_dist = 4
 
             self.arrival_times = fetchArrivals(self.db_start_time, self.db_end_time, self.db_no_tasks, self.db_dist, self.cur)
@@ -853,7 +881,7 @@ class SimUi(QMainWindow):
                 self.db_dist = 2
             elif i[4] == "Exponential":
                 self.db_dist = 3
-            elif i[4] == "Spiked":
+            elif i[4] == "Spiky":
                 self.db_dist = 4
 
             print(self.db_dist)

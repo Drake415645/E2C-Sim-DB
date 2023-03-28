@@ -34,7 +34,7 @@ class ScenarioWindow(QWidget):
         self.db_dist.addItem("1. Normal")
         self.db_dist.addItem("2. Uniform")
         self.db_dist.addItem("3. Exponential")
-        self.db_dist.addItem("4. Spiked")
+        self.db_dist.addItem("4. Spiky")
 
         self.db_add_scen = QPushButton("Add Scenario")
         self.db_reset = QPushButton("Reset Scenarios")
