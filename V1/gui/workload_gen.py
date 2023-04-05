@@ -154,7 +154,7 @@ class WorkloadGenerator(QMainWindow):
         self.display_tt_table.setColumnCount(6)
         self.display_tt_table.setRowCount(len(config.task_types))          #------------make sure to change this upon adding or removing tts
         self.display_tt_table.setHorizontalHeaderLabels(["Id","Name","Data Input","Mean Data Size (KB)","Urgency","Deadline"])
-        default_data_inputs = ["image","audio","face recognition","text"]
+        default_data_inputs = ["png","mp3","jpg","csv","mp4"]
         default_data_sizes = ["10.0","5.5","7.0","2.8"]
         for i in range(len(config.task_types)):
             id = QTableWidgetItem(str(config.task_types[i].id))
@@ -186,13 +186,6 @@ class WorkloadGenerator(QMainWindow):
         # self.tt_h_layout.addWidget(self.edit_tt_table)
         self.tt_h_layout.addWidget(self.edit_tt_submit)
 
-        self.di_h_layout = QHBoxLayout()
-        self.add_di_lbl = QLabel("Add New Data Input")
-        self.add_di = QLineEdit()
-        self.add_di_submit = QPushButton("Add")
-        self.di_h_layout.addWidget(self.add_di)
-        self.di_h_layout.addWidget(self.add_di_submit)
-
         self.add_tt_lbl = QLabel("Add Task Type")
         self.add_tt_lbl.setStyleSheet("font-weight: bold")
         self.add_tt_name_lbl = QLabel("Task Type Name")
@@ -200,6 +193,7 @@ class WorkloadGenerator(QMainWindow):
         self.add_tt_dt_lbl = QLabel("Data Input")
         self.add_tt_dt = QComboBox()
         self.add_tt_dt.addItems(default_data_inputs)
+        self.add_new_di = QPushButton("Create New Data Input")
         self.add_tt_ds_lbl = QLabel("Mean Data Size (KB)")
         self.add_tt_ds = QLineEdit()
         self.add_tt_urgency_lbl = QLabel("Urgency")
@@ -209,6 +203,10 @@ class WorkloadGenerator(QMainWindow):
         self.add_tt_deadline_lbl = QLabel("Deadline")
         self.add_tt_deadline = QLineEdit()
         self.add_tt_submit = QPushButton("Add")
+
+        self.di_h_layout = QHBoxLayout()
+        self.di_h_layout.addWidget(self.add_tt_dt)
+        self.di_h_layout.addWidget(self.add_new_di)
 
         self.remove_tt_lbl = QLabel("Remove Task Type")
         self.remove_tt_lbl.setStyleSheet("font-weight: bold")
@@ -225,11 +223,9 @@ class WorkloadGenerator(QMainWindow):
         self.main_layout.addWidget(self.add_tt_name_lbl)
         self.main_layout.addWidget(self.add_tt_name)
         self.main_layout.addWidget(self.add_tt_dt_lbl)
-        self.main_layout.addWidget(self.add_tt_dt)
+        self.main_layout.addLayout(self.di_h_layout)
         self.main_layout.addWidget(self.add_tt_ds_lbl)
         self.main_layout.addWidget(self.add_tt_ds)
-        self.main_layout.addWidget(self.add_di_lbl)
-        self.main_layout.addLayout(self.di_h_layout)
         self.main_layout.addWidget(self.add_tt_urgency_lbl)
         self.main_layout.addWidget(self.add_tt_urgency)
         self.main_layout.addWidget(self.add_tt_deadline_lbl)
@@ -453,12 +449,18 @@ class WorkloadGenerator(QMainWindow):
         self.save_eet_lbl = QLabel("Save EET File")
         self.save_eet_lbl.setStyleSheet('font-weight: bold')
         self.save_eet = QPushButton("Save as CSV File")
+
+        self.close_window_lbl = QLabel("Close Workload Generator")
+        self.close_window_lbl.setStyleSheet('font-weight: bold')
+        self.close_window = QPushButton("Close")
             
         self.main_layout.addWidget(self.eet_lbl)
         self.main_layout.addWidget(self.eet_table)
         self.main_layout.addLayout(self.horizontal_layout)
         self.main_layout.addWidget(self.save_eet_lbl)
         self.main_layout.addWidget(self.save_eet)
+        self.main_layout.addWidget(self.close_window_lbl)
+        self.main_layout.addWidget(self.close_window)
 
         self.main = QWidget()
         self.main.setLayout(self.main_layout)

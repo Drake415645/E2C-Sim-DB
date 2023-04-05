@@ -80,6 +80,22 @@ class SimUi(QMainWindow):
         self.help_menu = menu.addMenu("Help")
 
         self.workload_gen_window = WorkloadGenerator()
+        self.workload_gen_window.add_scen_submit.clicked.connect(self.add_scen)
+        self.workload_gen_window.reset_scen_btn.clicked.connect(self.reset_scen)
+        self.workload_gen_window.generate_wkld_submit.clicked.connect(self.generate_workload)
+        self.workload_gen_window.eet_table_reset.clicked.connect(self.eet_table_reset)
+        self.workload_gen_window.eet_table_submit.clicked.connect(self.set_etc_generator)
+        self.workload_gen_window.add_tt_submit.clicked.connect(self.add_tt)
+        self.workload_gen_window.remove_tt_submit.clicked.connect(self.remove_tt)
+        self.workload_gen_window.add_mt_submit.clicked.connect(self.add_mt)
+        self.workload_gen_window.remove_mt_submit.clicked.connect(self.remove_mt)
+        self.workload_gen_window.edit_tt_submit.clicked.connect(self.edit_tt_submit)
+        self.workload_gen_window.edit_mt_submit.clicked.connect(self.edit_mt_submit)
+        self.workload_gen_window.save_eet.clicked.connect(self.save_eet_file)
+        self.workload_gen_window.save_wkld.clicked.connect(self.save_wkld_file)
+        self.workload_gen_window.save_scen.clicked.connect(self.save_scen_file)
+        self.workload_gen_window.add_new_di.clicked.connect(self.add_di)
+        self.workload_gen_window.close_window.clicked.connect(self.close_window)
 
         self.full_report = QAction("&Full Report", self)
         self.full_report.setToolTip("Display full report of simulation")
@@ -223,10 +239,10 @@ class SimUi(QMainWindow):
             tt = config.task_type_names
             mt = config.machine_type_names 
             self.etc_submitted = False 
-            self.dock_right.workload_data(0,tt, mt)
+            self.dock_right.workload_data(0,tt, mt, config.task_types)
             self.dock_right.path_entry.textChanged.connect(self.set_arrival_path)
-            # self.dock_right.open_scen_window.clicked.connect(self.new_workload_gen)
             self.dock_right.workload_generator.clicked.connect(self.workload_gen_show)
+            self.dock_right.dock_wkl_submit.clicked.connect(self.dock_right_set_etc)
             try:
                 self.simulator
                 self.dock_right.etc_load.setEnabled(False)
@@ -240,24 +256,7 @@ class SimUi(QMainWindow):
 
     def workload_gen_show(self):
         self.workload_gen_window.show()
-        self.workload_gen_window.add_scen_submit.clicked.connect(self.add_scen)
-        self.workload_gen_window.reset_scen_btn.clicked.connect(self.reset_scen)
-        self.workload_gen_window.generate_wkld_submit.clicked.connect(self.generate_workload)
-        # self.workload_gen_window.eet_table_edit.clicked.connect(self.edit_eet_table)
-        self.workload_gen_window.eet_table_reset.clicked.connect(self.eet_table_reset)
-        self.workload_gen_window.eet_table_submit.clicked.connect(self.set_etc)
-        self.workload_gen_window.add_tt_submit.clicked.connect(self.add_tt)
-        self.workload_gen_window.remove_tt_submit.clicked.connect(self.remove_tt)
-        self.workload_gen_window.add_mt_submit.clicked.connect(self.add_mt)
-        self.workload_gen_window.remove_mt_submit.clicked.connect(self.remove_mt)
-        # self.workload_gen_window.edit_tt_table.clicked.connect(self.edit_tt_table)
-        self.workload_gen_window.edit_tt_submit.clicked.connect(self.edit_tt_submit)
-        # self.workload_gen_window.edit_mt_table.clicked.connect(self.edit_mt_table)
-        self.workload_gen_window.edit_mt_submit.clicked.connect(self.edit_mt_submit)
-        self.workload_gen_window.save_eet.clicked.connect(self.save_eet_file)
-        self.workload_gen_window.save_wkld.clicked.connect(self.save_wkld_file)
-        self.workload_gen_window.save_scen.clicked.connect(self.save_scen_file)
-        self.workload_gen_window.add_di_submit.clicked.connect(self.add_di)
+        
 
     def rb_policy_state(self, rb):        
         if rb.isChecked():
@@ -283,13 +282,45 @@ class SimUi(QMainWindow):
         self.configs['immediate_scheduling'] = self.dock_right.configs['mapper']['immediate']        
         
             
-    
+    def set_etc_generator(self):
+        self.set_etc()
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("EET has been successfully submitted.")
+        msg.setWindowTitle("EET Submitted")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+
+    def dock_right_set_etc(self):
+        self.set_etc()  
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("EET and Workload have been successfully submitted.")
+        msg.setWindowTitle("EET and Workload Submitted")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+
     def set_arrival_path(self):
         print(f'wlPath: {self.dock_right.workload_path}')
         print(f'txt_entry: {self.dock_right.path_entry.text()}')
         self.path_to_arrivals = self.dock_right.path_entry.text()
         #self.path_to_arrivals = self.dock_right.workload_path
         
+    def close_window(self):
+        if self.workload_gen_window.wkld_table.rowCount() == 0:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Workload is empty. Are you sure you wish to close?")
+            msg.setWindowTitle("Close Window")
+            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            input = msg.exec_()
+
+            if input == QMessageBox.Ok:
+                self.workload_gen_window.close()
+
+        else: self.workload_gen_window.close()
 
     def set_mq_size(self):
         mq_size = int(self.dock_right.mq_size.text())
@@ -462,23 +493,14 @@ class SimUi(QMainWindow):
         print(scen_df)
 
     def add_di(self):
-        self.workload_gen_window.add_tt_dt.addItem(self.workload_gen_window.add_di.text())
+        popup = QInputDialog(self, flags=Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
+        popup.setInputMode(QInputDialog.TextInput)
+        popup.setWindowTitle('Add New Data Type')
+        popup.setLabelText('Enter Data Type')
+        ok = popup.exec_()
 
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Data Input successfully added to selection box.")
-        msg.setWindowTitle("New Data Input")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
-
-    # def edit_eet_table(self):
-    #     self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
-
-    # def edit_tt_table(self):
-    #     self.workload_gen_window.display_tt_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
-
-    # def edit_mt_table(self):
-    #     self.workload_gen_window.display_mt_table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked)
+        if ok:
+            self.workload_gen_window.add_tt_dt.addItem(popup.textValue())
 
     def edit_tt_submit(self):
         table = self.workload_gen_window.display_tt_table
@@ -743,7 +765,7 @@ class SimUi(QMainWindow):
         self.simulator.reset()
 
     def set_etc(self):
-        self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.NoEditTriggers)  
+        # self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.NoEditTriggers)  
 
         etc_matrix = self.workload_gen_window.eet_table
         not_matched_tt = self.check_etc_format()      
@@ -790,21 +812,6 @@ class SimUi(QMainWindow):
 
         self.dock_right.get_eet_input()
 
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("EET has been successfully submitted.")
-        msg.setWindowTitle("EET Submitted")
-        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        button1 = msg.button(QMessageBox.Ok)
-        button1.setText('Keep Workload Generator Window Open')
-        button2 = msg.button(QMessageBox.Cancel)
-        button2.setText('Close Window')
-        input = msg.exec_()
-
-        if input == QMessageBox.Cancel:
-            self.workload_gen_window.close()
-
-
     def generate_workload(self):
         #make sure scenario isnt empty
         if self.workload_gen_window.display_scen_table.rowCount() <= 0:
@@ -815,6 +822,7 @@ class SimUi(QMainWindow):
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
             return
+        
 
         initTables(self.cur,self.conn)
         self.cur.execute("DELETE FROM workload;")

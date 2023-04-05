@@ -200,7 +200,7 @@ class ItemDockDetail(QMainWindow):
         self.etc_matrix.verticalHeader().sectionDoubleClicked.connect(self.changeVerticalHeader)
         # self.etc_generate = QPushButton('Submit')
         self.etc_load = QPushButton('Load')
-        self.etc_edit = QPushButton('Edit')
+        self.etc_edit = QPushButton('Edit EET and Workload')
         self.etc_edit.clicked.connect(self.enable_etc_table)
         self.etc_load.clicked.connect(self.get_etc_file)
        
@@ -257,9 +257,9 @@ class ItemDockDetail(QMainWindow):
             self.etc_editable = True
     
     def get_etc_file(self):     
-        path  = QFileDialog.getOpenFileName(self, caption='Choose File',
+        path  = QFileDialog.getOpenFileName(self, caption='Choose EET File',
                                                     directory=QDir.currentPath(),
-                                                    filter='*.csv')
+                                                    filter='*.csv.eet')
         if path[0]:
             self.path_to_etc = path[0]
 
@@ -303,32 +303,6 @@ class ItemDockDetail(QMainWindow):
             QLineEdit.Normal, oldHeader)
         if okPressed:
             it.setText(newHeader)
-
-
-    # def set_mq(self):
-    #     self.tabs = QTabWidget()
-    #     self.tab_mq = QWidget()
-    #     self.tabs.addTab(self.tab_mq, "Machine Queue")        
-    #     self.tab_mq.layout = QVBoxLayout(self)        
-    #     self.mq_grid = QGridLayout(self)        
-        
-    #     self.mq_lbl = QLabel('Machine queue size')
-    #     self.mq_size = QLineEdit()
-    #     self.mq_size.setToolTip('The size of machine queues')
-    #     if self.configs['mapper']['immediate']:
-    #         self.mq_size.setText("unlimited")
-    #     else:
-    #         self.mq_size.setText("")
-    #     self.mq_size.setReadOnly(False)
-    #     self.mq_size.setAlignment(Qt.AlignLeft)
-        
-    #     self.mq_grid.addWidget(self.mq_lbl,0,0)
-    #     self.mq_grid.addWidget(self.mq_size,1,0)
-              
-    #     self.tab_mq.layout.addLayout(self.mq_grid)                
-    #     self.tab_mq.layout.addStretch(1)
-    #     self.tab_mq.setLayout(self.tab_mq.layout)
-    #     self.dock.setWidget(self.tabs)
 
 
     def set_bq(self):
@@ -699,7 +673,7 @@ class ItemDockDetail(QMainWindow):
                 self.mq_size.setText("")
                 self.mq_size.setDisabled(False)
     
-    def workload_data(self, enabled, tt, mt):
+    def workload_data(self, enabled, tt, mt, config_tt):
         self.tabs = QTabWidget()        
         self.tab_workload = QWidget()
 
@@ -737,16 +711,22 @@ class ItemDockDetail(QMainWindow):
                 self.workload_table.setRowCount(idx+1) 
                 type_item = QTableWidgetItem(row[0])       
                 arrival_item = QTableWidgetItem(str(row[1]))
+                deadline = 0
+                for tt in config_tt:
+                    if tt.name == row[0]:
+                        deadline = tt.deadline
 
                 self.workload_table.setItem(idx, 0, type_item)
-                self.workload_table.setItem(idx, 2, arrival_item )            
+                self.workload_table.setItem(idx,1,QTableWidgetItem("0"))
+                self.workload_table.setItem(idx, 2, arrival_item )
+                self.workload_table.setItem(idx,3,QTableWidgetItem(str(round(deadline + float(row[1]),3))))          
                 type_item.setFlags(type_item.flags() ^ Qt.ItemIsEditable)
                 arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
         self.workload_table.setStyleSheet("background-color: white; selection-background-color: #353535;")
         self.tab_etc  = self.machine_etc(tt,mt)
 
-        self.open_scen_window = QPushButton("Generate New Workload")
         self.workload_generator = QPushButton("Generate Workload")
+        self.dock_wkl_submit = QPushButton("Submit Current Workload and EET")
 
         self.tab_workload.layout.addWidget(self.tab_etc)
         
@@ -758,8 +738,8 @@ class ItemDockDetail(QMainWindow):
         self.tab_workload.layout.addLayout(self.workload_grid) 
 
         self.btns_grid.addWidget(self.etc_edit, 0,0)
-
-        self.btns_grid.addWidget(self.workload_generator,1,0)
+        self.btns_grid.addWidget(self.dock_wkl_submit,1,0)
+        self.btns_grid.addWidget(self.workload_generator,2,0)
 
         self.spaceItem = QSpacerItem(100, 25, QSizePolicy.Expanding)
         self.tab_workload.layout.addSpacerItem(self.spaceItem)
@@ -773,9 +753,9 @@ class ItemDockDetail(QMainWindow):
         
     
     def get_workload_file(self):     
-        loaded_path  = QFileDialog.getOpenFileName(self, caption='Choose File',
+        loaded_path  = QFileDialog.getOpenFileName(self, caption='Choose Workload File',
                                                     directory=QDir.currentPath(),
-                                                    filter='*.csv')
+                                                    filter='*.csv.wkl')
         if loaded_path[0]:
             self.workload_path = loaded_path[0]
         
@@ -785,10 +765,14 @@ class ItemDockDetail(QMainWindow):
             next(workload_reader)        
             for idx, row in enumerate(workload_reader):                                
                 self.workload_table.setRowCount(idx+1)
-                type_item = QTableWidgetItem(row[0])       
-                arrival_item = QTableWidgetItem(str(row[1]))
+                type_item = QTableWidgetItem(row[0])      
+                data_size = QTableWidgetItem(str(row[1]))
+                arrival_item = QTableWidgetItem(str(row[2]))
+                deadline = QTableWidgetItem(str(row[3]))
                 self.workload_table.setItem(idx, 0, type_item)
-                self.workload_table.setItem(idx, 1, arrival_item)
+                self.workload_table.setItem(idx, 1, data_size)
+                self.workload_table.setItem(idx, 2, arrival_item)
+                self.workload_table.setItem(idx, 3, deadline)
                 type_item.setFlags(type_item.flags() ^ Qt.ItemIsEditable)
                 arrival_item.setFlags(arrival_item.flags() ^ Qt.ItemIsEditable)
         #print('wl_path set in dock: ',self.workload_path)

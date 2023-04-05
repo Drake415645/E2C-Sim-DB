@@ -19,9 +19,14 @@ class Downloader(QMainWindow):
         self.layout = QVBoxLayout(self)
         self.setLayout(self.layout)
         self.resize(640, 480)
-        self.saveFileDialog()
+        if self.type == "EET":
+            self.saveFileDialogEET()
+        elif self.type == "Workload":
+            self.saveFileDialogWKL()
+        elif self.type == "Scenario":
+            self.saveFileDialogSCEN()
 
-    def saveFileDialog(self):
+    def saveFileDialogEET(self):
         # Get user's Downloads dir
         if os.name == "nt":
             DL_DIR = f"{os.getenv('USERPROFILE')}\\Downloads"            
@@ -33,18 +38,82 @@ class Downloader(QMainWindow):
         self.dialog |= QFileDialog.DontUseNativeDialog
         path, _ = QFileDialog.getSaveFileName(
             self,
-            "QFileDialog.getSaveFileName()",
+            "Save EET File as CSV",
             DL_DIR,
-            "CSV Files (*.csv)", 
+            "CSV Files (*.csv.eet)", 
             options=self.dialog
         )
 
         if path:
-            self.download(path)
+            self.downloadEET(path)
 
-    def download(self, path):
-        if not path.endswith(".csv"):
-            path = path + ".csv"
+    def downloadEET(self, path):
+        if not path.endswith(".csv.eet"):
+            path = path + ".csv.eet"
+        try:
+            self.df.to_csv(path, index = False)
+
+            print("Download succeeded")
+
+        except Exception as e:
+            print("ERROR:", e)
+
+    def saveFileDialogWKL(self):
+        # Get user's Downloads dir
+        if os.name == "nt":
+            DL_DIR = f"{os.getenv('USERPROFILE')}\\Downloads"            
+        else:
+            DL_DIR = f"{os.getenv('HOME')}/Downloads"
+
+        # Initialize dialog
+        self.dialog = QFileDialog.Options()
+        self.dialog |= QFileDialog.DontUseNativeDialog
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Workload File as CSV",
+            DL_DIR,
+            "CSV Files (*.csv.wkl)", 
+            options=self.dialog
+        )
+
+        if path:
+            self.downloadWKL(path)
+
+    def downloadWKL(self, path):
+        if not path.endswith(".csv.wkl"):
+            path = path + ".csv.wkl"
+        try:
+            self.df.to_csv(path, index = False)
+
+            print("Download succeeded")
+
+        except Exception as e:
+            print("ERROR:", e)
+
+    def saveFileDialogSCEN(self):
+        # Get user's Downloads dir
+        if os.name == "nt":
+            DL_DIR = f"{os.getenv('USERPROFILE')}\\Downloads"            
+        else:
+            DL_DIR = f"{os.getenv('HOME')}/Downloads"
+
+        # Initialize dialog
+        self.dialog = QFileDialog.Options()
+        self.dialog |= QFileDialog.DontUseNativeDialog
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Scenario File as CSV",
+            DL_DIR,
+            "CSV Files (*.csv.scen)", 
+            options=self.dialog
+        )
+
+        if path:
+            self.downloadSCEN(path)
+
+    def downloadSCEN(self, path):
+        if not path.endswith(".csv.scen"):
+            path = path + ".csv.scen"
         try:
             self.df.to_csv(path, index = False)
 
