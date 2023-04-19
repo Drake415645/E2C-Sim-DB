@@ -867,6 +867,7 @@ class SimUi(QMainWindow):
 
         # self.workload_gen_window.workload_btn.setStyleSheet("QPushButton {color:rgb(0,0,0);}")
         self.workload_gen_window.workload_btn.setEnabled(True)
+        self.workload_gen_window.workload_btn.setStyleSheet('''color:rgb(0,0,0)''')
 
     def check_etc_format(self):
         task_types_etc = []

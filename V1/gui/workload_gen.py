@@ -106,6 +106,13 @@ class WorkloadGenerator(QMainWindow):
         self.main_widget.setLayout(self.main_layout)
         self.setCentralWidget(self.main_widget)
 
+        #task types btn is clicked by default on opening
+        self.right_widget.setCurrentIndex(0)
+        self.task_types_btn.setStyleSheet('''font-weight:600;background:rgb(220,220,220);''')
+
+        #workload default disabled
+        self.workload_btn.setStyleSheet('''color:rgb(100,100,100)''')
+
     # ----------------- 
     # buttons
 
@@ -141,7 +148,9 @@ class WorkloadGenerator(QMainWindow):
         self.task_types_btn.setStyleSheet('''''')
         self.machine_types_btn.setStyleSheet('''''')
         self.scenario_btn.setStyleSheet('''''')
-        self.workload_btn.setStyleSheet('''''')
+        if self.display_scen_table.rowCount() != 0:
+            self.workload_btn.setStyleSheet('''''')
+        else: self.workload_btn.setStyleSheet('''color:rgb(100,100,100)''')
         self.eet_btn.setStyleSheet('''''')
 
 
