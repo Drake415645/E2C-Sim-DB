@@ -74,7 +74,9 @@ class SimUi(QMainWindow):
         self.sim_done = 0
         self.db_scens = []
         self.db_scen = []
-        self.etc_submitted = True
+
+        self.etc_submitted = False
+
         menu = self.menuBar()
         self.report_menu = menu.addMenu("Reports")
         self.help_menu = menu.addMenu("Help")
@@ -243,6 +245,8 @@ class SimUi(QMainWindow):
             self.dock_right.path_entry.textChanged.connect(self.set_arrival_path)
             self.dock_right.workload_generator.clicked.connect(self.workload_gen_show)
             self.dock_right.dock_wkl_submit.clicked.connect(self.dock_right_set_etc)
+
+            
             try:
                 self.simulator
                 self.dock_right.etc_load.setEnabled(False)
@@ -293,6 +297,54 @@ class SimUi(QMainWindow):
 
 
     def dock_right_set_etc(self):
+
+        num_rows = self.dock_right.etc_matrix.rowCount()
+        num_cols = self.dock_right.etc_matrix.columnCount()
+        
+        eet_num_rows = self.workload_gen_window.eet_table.rowCount()
+        eet_num_cols = self.workload_gen_window.eet_table.columnCount()
+
+        if num_rows > eet_num_rows:
+            self.workload_gen_window.eet_table.setRowCount(num_rows)
+            for row in range(eet_num_rows, num_rows):
+                header_item = self.dock_right.etc_matrix.verticalHeaderItem(row)
+                self.workload_gen_window.eet_table.setVerticalHeaderItem(row, header_item)
+        elif num_rows < eet_num_rows:
+            self.workload_gen_window.eet_table.setRowCount(num_rows)
+
+        if num_cols > eet_num_cols:
+            self.workload_gen_window.eet_table.setColumnCount(num_cols)
+            for col in range(eet_num_cols, num_cols):
+                header_item = self.dock_right.etc_matrix.horizontalHeaderItem(col)
+                self.workload_gen_window.eet_table.setHorizontalHeaderItem(col, header_item)
+        elif num_cols < eet_num_cols:
+            self.workload_gen_window.eet_table.setColumnCount(num_cols)
+    
+        for col in range(num_cols):
+            for row in range(num_rows):
+                item = self.dock_right.etc_matrix.item(row, col)
+                eet_item = self.workload_gen_window.eet_table.item(row, col)
+                if not item:
+                    continue
+                if not eet_item:
+                    eet_item = QTableWidgetItem()
+                    self.workload_gen_window.eet_table.setItem(row, col, eet_item)
+                eet_item.setText(item.text())
+                header_item = self.dock_right.etc_matrix.verticalHeaderItem(row)
+                self.workload_gen_window.eet_table.setVerticalHeaderItem(row, header_item)
+                header_item = self.dock_right.etc_matrix.horizontalHeaderItem(col)
+                self.workload_gen_window.eet_table.setHorizontalHeaderItem(col, header_item)
+
+        self.workload_gen_window.wkld_table.setRowCount(self.dock_right.workload_table.rowCount())
+        
+        for row in range(self.dock_right.workload_table.rowCount()):
+            for col in range(self.dock_right.workload_table.columnCount()):
+                item = self.dock_right.workload_table.item(row, col)
+                
+                new_item = QTableWidgetItem(item.text())
+                self.workload_gen_window.wkld_table.setItem(row, col, new_item)
+
+
         self.set_etc()  
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
@@ -300,7 +352,7 @@ class SimUi(QMainWindow):
         msg.setWindowTitle("EET and Workload Submitted")
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
-
+        self.workload_gen_window.workload_btn.setEnabled(True)
 
     def set_arrival_path(self):
         print(f'wlPath: {self.dock_right.workload_path}')
@@ -577,6 +629,15 @@ class SimUi(QMainWindow):
         msg.exec_()
 
     def eet_table_reset(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Are you sure you want to reset EET?")
+        msg.setWindowTitle("Confirm Reset EET")
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        input = msg.exec_()
+
+        if input == QMessageBox.Cancel:
+            return
         # self.workload_gen_window.eet_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         for i in range(self.workload_gen_window.eet_table.rowCount()):
             for j in range(self.workload_gen_window.eet_table.columnCount()):
@@ -624,6 +685,16 @@ class SimUi(QMainWindow):
         self.workload_gen_window.add_scen_tt.addItem(tt_name)
 
     def remove_tt(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Are you sure you want to delete this task type?")
+        msg.setWindowTitle("Confirm Remove Task Type")
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        input = msg.exec_()
+
+        if input == QMessageBox.Cancel:
+            return
+
         tt_removed = self.workload_gen_window.remove_tt_combo.currentText()
         for tt in config.task_types:
             if tt_removed == tt.name:
@@ -696,6 +767,16 @@ class SimUi(QMainWindow):
 
 
     def remove_mt(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Are you sure you want to delete this machine type?")
+        msg.setWindowTitle("Confirm Remove Machine Type")
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        input = msg.exec_()
+
+        if input == QMessageBox.Cancel:
+            return
+
         mt_removed = self.workload_gen_window.remove_mt_combo.currentText()
 
         for mt in config.machine_types:
@@ -750,6 +831,16 @@ class SimUi(QMainWindow):
         self.db_scens.append(self.db_scen)
 
     def reset_scen(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Are you sure you want to reset scenario")
+        msg.setWindowTitle("Confirm Reset Scenario")
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        input = msg.exec_()
+
+        if input == QMessageBox.Cancel:
+            return
+
         self.workload_gen_window.add_scen_tt.setCurrentIndex(0)
         self.workload_gen_window.add_scen_num_tasks.clear()
         self.workload_gen_window.add_scen_start_time.clear()
@@ -865,8 +956,8 @@ class SimUi(QMainWindow):
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
 
-        # self.workload_gen_window.workload_btn.setStyleSheet("QPushButton {color:rgb(0,0,0);}")
         self.workload_gen_window.workload_btn.setEnabled(True)
+        self.workload_gen_window.workload_btn.setStyleSheet('''color:rgb(0,0,0)''')
 
     def check_etc_format(self):
         task_types_etc = []
@@ -931,8 +1022,8 @@ class SimUi(QMainWindow):
             err_txt = f"Task type {not_matched_tt} in workload are not found in ETC"
             self.err_msg('Format Error', err_txt)
             return not_matched_tt
-        else: 
-            workload.to_csv(self.dock_right.workload_path, index = False)
+        # else: 
+        #     workload.to_csv(self.dock_right.workload_path, index = False)
             # try:   
             #     self.dock_right.rewrite_workload_table()
             # except:
@@ -1060,8 +1151,15 @@ class SimUi(QMainWindow):
         if not_matched_tt:
             return
         if not self.etc_submitted:
-            self.err_msg('EET Submision', 'First submit the changes made in profiling table and workload.')                                            
-            return 
+            if (self.workload_gen_window.wkld_table.rowCount() == 0):
+                self.err_msg('EET Submision', 'Must generate a workload and submit EET in the workload generator.')  
+            else:
+                self.err_msg('EET Submision', 'Must submit EET in the workload generator.')                                    
+            return
+        if self.workload_gen_window.wkld_table.rowCount() == 0:
+            self.err_msg('EET Submision', 'Must generate a workload in the workload generator.')  
+            return
+
         self.thread = QThread(parent=self) 
         self.simulator =  Simulator(self.path_to_arrivals,self.path_to_etc, self.path_to_reports,  seed=123)         
         

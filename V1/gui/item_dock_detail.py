@@ -199,14 +199,14 @@ class ItemDockDetail(QMainWindow):
         self.etc_matrix.horizontalHeader().sectionDoubleClicked.connect(self.changeHorizontalHeader)
         self.etc_matrix.verticalHeader().sectionDoubleClicked.connect(self.changeVerticalHeader)
         # self.etc_generate = QPushButton('Submit')
-        self.etc_load = QPushButton('Load')
-        self.etc_edit = QPushButton('Edit EET and Workload')
-        self.etc_edit.clicked.connect(self.enable_etc_table)
-        self.etc_load.clicked.connect(self.get_etc_file)
+        # self.etc_load = QPushButton('Load')
+        # self.etc_edit = QPushButton('Edit EET and Workload')
+        # self.etc_edit.clicked.connect(self.enable_etc_table)
+        # self.etc_load.clicked.connect(self.get_etc_file)
        
         #self.etc_grid.addWidget(self.etc_matrix,0,0, len(tt),len(mt))
-        self.etc_grid.addWidget(self.etc_path_entry,0,0)
-        self.etc_grid.addWidget(self.etc_load,0,1)
+        # self.etc_grid.addWidget(self.etc_path_entry,0,0)
+        # self.etc_grid.addWidget(self.etc_load,0,1)
         # self.etc_grid.addWidget(self.etc_generate,2+len(tt),0,1,len(mt)) 
         self.tab_etc.layout.addWidget(self.etc_label)
         self.tab_etc.layout.addWidget(self.etc_matrix)
@@ -691,8 +691,8 @@ class ItemDockDetail(QMainWindow):
 
         self.wl_label = QLabel('Workload')
 
-        self.load_wl_btn = QPushButton('Load', self)
-        self.load_wl_btn.clicked.connect(self.get_workload_file)
+        # self.load_wl_btn = QPushButton('Load', self)
+        # self.load_wl_btn.clicked.connect(self.get_workload_file)
 
         self.workload_table = QTableWidget() 
         delegate = MyDelegate()
@@ -725,20 +725,20 @@ class ItemDockDetail(QMainWindow):
         self.workload_table.setStyleSheet("background-color: white; selection-background-color: #353535;")
         self.tab_etc  = self.machine_etc(tt,mt)
 
-        self.workload_generator = QPushButton("Generate Workload")
+        self.workload_generator = QPushButton("Open Workload Generator")
         self.dock_wkl_submit = QPushButton("Submit Current Workload and EET")
 
         self.tab_workload.layout.addWidget(self.tab_etc)
         
-        self.workload_grid.addWidget(self.path_entry,0,0)        
-        self.workload_grid.addWidget(self.load_wl_btn,0,1)   
+        # self.workload_grid.addWidget(self.path_entry,0,0)        
+        # self.workload_grid.addWidget(self.load_wl_btn,0,1)   
         
         self.tab_workload.layout.addWidget(self.wl_label)
         self.tab_workload.layout.addWidget(self.workload_table)
         self.tab_workload.layout.addLayout(self.workload_grid) 
 
-        self.btns_grid.addWidget(self.etc_edit, 0,0)
-        self.btns_grid.addWidget(self.dock_wkl_submit,1,0)
+        # self.btns_grid.addWidget(self.etc_edit, 0,0)
+        # self.btns_grid.addWidget(self.dock_wkl_submit,1,0)
         self.btns_grid.addWidget(self.workload_generator,2,0)
 
         self.spaceItem = QSpacerItem(100, 25, QSizePolicy.Expanding)

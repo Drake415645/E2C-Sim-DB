@@ -34,7 +34,7 @@ class WorkloadGenerator(QMainWindow):
         self.eet_btn.setObjectName('left_button')
 
         self.workload_btn.setEnabled(False)
-        # self.workload_btn.setStyleSheet("QPushButton{color:rgb(100,100,100);}")
+        self.workload_btn.setStyleSheet("QPushButton{color:rgb(100,100,100);}")
 
         self.task_types_btn.clicked.connect(self.set_tt_tab)
         self.machine_types_btn.clicked.connect(self.set_mt_tab)
@@ -106,6 +106,9 @@ class WorkloadGenerator(QMainWindow):
         self.main_widget.setLayout(self.main_layout)
         self.setCentralWidget(self.main_widget)
 
+        self.right_widget.setCurrentIndex(0)
+        self.task_types_btn.setStyleSheet('''font-weight:600;background:rgb(220,220,220);''')
+
     # ----------------- 
     # buttons
 
@@ -141,7 +144,9 @@ class WorkloadGenerator(QMainWindow):
         self.task_types_btn.setStyleSheet('''''')
         self.machine_types_btn.setStyleSheet('''''')
         self.scenario_btn.setStyleSheet('''''')
-        self.workload_btn.setStyleSheet('''''')
+        if self.display_scen_table.rowCount() != 0 or self.wkld_table.rowCount() != 0:
+            self.workload_btn.setStyleSheet('''''')
+        else: self.workload_btn.setStyleSheet('''color:rgb(100,100,100)''')
         self.eet_btn.setStyleSheet('''''')
 
 
