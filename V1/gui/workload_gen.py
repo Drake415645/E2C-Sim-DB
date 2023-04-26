@@ -469,6 +469,8 @@ class WorkloadGenerator(QMainWindow):
             for j in range(self.eet_table.columnCount()):
                 self.eet_table.setItem(i,j, QTableWidgetItem("0"))
 
+        self.eet_table.cellChanged.connect(self.validate_cell)
+
         self.horizontal_layout = QHBoxLayout()
         self.eet_table_edit = QPushButton("Edit EET")
         self.eet_table_submit = QPushButton("Submit EET")
@@ -497,6 +499,19 @@ class WorkloadGenerator(QMainWindow):
         self.main.setLayout(self.main_layout)
         return self.main
     
+    def validate_cell(self, row, column):
+        item = self.eet_table.item(row, column)
+        if item is None:
+            return
+        value = item.text()
+        
+        try:
+            value = float(value)
+            if value < 0 or round(value, 3) != value:
+                raise ValueError()
+        except ValueError:
+            item.setText('0')
+            QMessageBox.warning(self, 'Invalid Value', f'Please enter a non-negative number with up to 3 decimal places in cell ({row+1}, {column+1}).')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
