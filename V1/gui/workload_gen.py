@@ -201,12 +201,18 @@ class WorkloadGenerator(QMainWindow):
         self.add_new_di = QPushButton("Create New Data Input")
         self.add_tt_ds_lbl = QLabel("Mean Data Size (KB)")
         self.add_tt_ds = QLineEdit()
+
+        self.add_tt_ds.setValidator(QDoubleValidator(0.99, 99.99, 3))
+
         self.add_tt_urgency_lbl = QLabel("Urgency")
         self.add_tt_urgency = QComboBox()
         self.add_tt_urgency.addItem("BestEffort")
         self.add_tt_urgency.addItem("Urgent")
         self.add_tt_deadline_lbl = QLabel("Deadline")
         self.add_tt_deadline = QLineEdit()
+
+        self.add_tt_deadline.setValidator(QDoubleValidator(0.99, 99.99, 3))
+
         self.add_tt_submit = QPushButton("Add")
 
         self.di_h_layout = QHBoxLayout()
@@ -280,10 +286,21 @@ class WorkloadGenerator(QMainWindow):
         self.add_mt_name = QLineEdit()
         self.add_mt_power_lbl = QLabel("Power")
         self.add_mt_power = QLineEdit()
+
+        self.add_mt_power.setValidator(QDoubleValidator(0.99, 99.99, 3))
+
         self.add_mt_idle_lbl = QLabel("Idle Power")
         self.add_mt_idle = QLineEdit()
+
+        self.add_mt_idle.setValidator(QDoubleValidator(0.99, 99.99, 3))
+
         self.add_mt_replicas_lbl = QLabel("# Replicas")
         self.add_mt_replicas = QLineEdit()
+
+        self.onlyInt = QIntValidator(0,999999)
+        self.onlyIntNoZero = QIntValidator(1,999999)
+        self.add_mt_replicas.setValidator(self.onlyInt)
+
         self.add_mt_submit = QPushButton("Add")
         
         self.remove_mt_lbl = QLabel("Remove Machine Type")
@@ -342,10 +359,19 @@ class WorkloadGenerator(QMainWindow):
             self.add_scen_tt.addItem(f'{config.task_type_names[i]}')
         self.add_scen_num_tasks_lbl = QLabel("# Tasks")
         self.add_scen_num_tasks = QLineEdit()
+
+        self.add_scen_num_tasks.setValidator(self.onlyIntNoZero)
+
         self.add_scen_start_time_lbl = QLabel("Start Time")
         self.add_scen_start_time = QLineEdit()
+
+        self.add_scen_start_time.setValidator(QDoubleValidator(0.99, 99.99, 3))
+
         self.add_scen_end_time_lbl = QLabel("End Time")
         self.add_scen_end_time = QLineEdit()
+
+        self.add_scen_end_time.setValidator(QDoubleValidator(0.99, 99.99, 3))
+
         self.add_scen_dist_lbl = QLabel("Distribution")
         self.add_scen_dist = QComboBox()
         self.add_scen_dist.addItem("Normal")

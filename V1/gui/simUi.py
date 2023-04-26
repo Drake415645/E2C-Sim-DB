@@ -644,13 +644,35 @@ class SimUi(QMainWindow):
                 self.workload_gen_window.eet_table.setItem(i,j, QTableWidgetItem("0"))
 
 
+    def is_empty(self, val):
+        if val.strip() == '':
+            return True
+        return False
+
+
     def add_tt(self):
-        tt_id = (len(config.task_types)) + 1
         tt_name = self.workload_gen_window.add_tt_name.text()
         tt_dt = self.workload_gen_window.add_tt_dt.currentText()
-        tt_ds = float(self.workload_gen_window.add_tt_ds.text())
+        tt_ds = self.workload_gen_window.add_tt_ds.text()
         tt_urgency = self.workload_gen_window.add_tt_urgency.currentText()
-        tt_deadline = float(self.workload_gen_window.add_tt_deadline.text())
+        tt_deadline = self.workload_gen_window.add_tt_deadline.text()
+
+        if (self.is_empty(tt_name) or self.is_empty(tt_dt) or self.is_empty(tt_ds)
+            or self.is_empty(tt_urgency) or self.is_empty(tt_deadline)):
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setText("Please fill out all fields when adding a task type.")
+                msg.setWindowTitle("Incomplete Task Type")
+                msg.setStandardButtons(QMessageBox.Ok)
+                input = msg.exec_()
+
+                return
+
+
+        tt_ds = float(tt_ds)
+        tt_deadline = float(tt_deadline)
+
+        tt_id = (len(config.task_types)) + 1
 
         if tt_urgency == "BestEffort":
             urgency = UrgencyLevel.BESTEFFORT
@@ -685,6 +707,9 @@ class SimUi(QMainWindow):
         self.workload_gen_window.add_scen_tt.addItem(tt_name)
 
     def remove_tt(self):
+        if self.workload_gen_window.remove_tt_combo.count() == 0:
+            return
+        
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Are you sure you want to delete this task type?")
@@ -721,11 +746,23 @@ class SimUi(QMainWindow):
                 return
 
     def add_mt(self):
-        mt_id = (len(config.machine_types))
         mt_name = self.workload_gen_window.add_mt_name.text()
         mt_power = self.workload_gen_window.add_mt_power.text()
         mt_idle_power = self.workload_gen_window.add_mt_idle.text()
         mt_replicas = self.workload_gen_window.add_mt_replicas.text()
+
+        if (self.is_empty(mt_name) or self.is_empty(mt_power)
+            or self.is_empty(mt_idle_power) or self.is_empty(mt_replicas)):
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setText("Please fill out all fields when adding a machine type.")
+                msg.setWindowTitle("Incomplete Machine Type")
+                msg.setStandardButtons(QMessageBox.Ok)
+                input = msg.exec_()
+
+                return
+        
+        mt_id = (len(config.machine_types))
 
         config.machine_types.append(MachineType(mt_id,mt_name,float(mt_power),
                                     float(mt_idle_power),int(mt_replicas)))
@@ -767,6 +804,9 @@ class SimUi(QMainWindow):
 
 
     def remove_mt(self):
+        if self.workload_gen_window.remove_mt_combo.count() == 0:
+            return
+        
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Are you sure you want to delete this machine type?")
