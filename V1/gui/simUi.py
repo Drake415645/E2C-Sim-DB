@@ -375,17 +375,19 @@ class SimUi(QMainWindow):
         else: self.workload_gen_window.close()
 
     def set_mq_size(self):
-        mq_size = int(self.dock_right.mq_size.text())
-        if self.configs['immediate_scheduling']:
-            # print('here')
-            mq_size = float('inf')
-            config.machine_queue_size = mq_size
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("Machine queue size is unlimited for immediate scheduling!")
-            msg.setWindowTitle("Warning MessageBox")
-            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            msg.exec_()
+        mq_size = float('inf')
+        if self.dock_right.rb_batch.isChecked():
+            mq_size = int(self.dock_right.mq_size.text())
+        # if self.configs['immediate_scheduling']:
+        #     # print('here')
+        #     mq_size = float('inf')
+        #     config.machine_queue_size = mq_size
+        #     msg = QMessageBox()
+        #     msg.setIcon(QMessageBox.Warning)
+        #     msg.setText("Machine queue size is unlimited for immediate scheduling!")
+        #     msg.setWindowTitle("Warning MessageBox")
+        #     msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        #     msg.exec_()
 
         config.machine_queue_size = mq_size
         for machine in config.machines:
@@ -1289,6 +1291,8 @@ class SimUi(QMainWindow):
         self.mach_report.setEnabled(False)              
         self.summary_report.setEnabled(False)
         self.workload_gen_window.workload_btn.setEnabled(False)
+        self.workload_gen_window.workload_btn.setStyleSheet("QPushButton{color:rgb(100,100,100);}")
+        self.workload_gen_window.wkld_table.setRowCount(0)
         self.progress=0
         self.p_count = 0        
         self.pbar.setFormat(f'{self.p_count}/0 tasks ({self.progress}%)')

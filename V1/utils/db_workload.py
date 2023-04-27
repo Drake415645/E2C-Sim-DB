@@ -102,19 +102,9 @@ def get_data_sizes(data_size,stdv,num_of_tasks):
 def fetchArrivals(start_time, end_time, num_of_tasks, dist_id, cur):
     cur.execute(f"SELECT name FROM distribution WHERE dist_id = '{dist_id}';")
     dist_name = cur.fetchall()
-    # print(dist_name)
+    
     dist_name = dist_name[0][0]
 
-    # scale = start_time + ((end_time - start_time) / 2)
-    # Should probably switch based on dist_id
-    # if dist_name == 'exponential':
-    #     return np.random.exponential(scale, num_of_tasks)
-    # elif dist_name == 'uniform':
-    #     return np.random.unform(scale, num_of_tasks)
-    # elif dist_name == 'normal':
-    #     return np.random.normal(scale, num_of_tasks)
-    # elif dist_name == 'spiky':
-    #     return np.random.spiky(scale, num_of_tasks)
     if dist_name == 'exponential':
         beta = (end_time - start_time) / num_of_tasks
         interarrival = np.random.exponential(

@@ -48,7 +48,6 @@ class Simulator(QObject):
         self.path_to_arrivals = path_to_arrivals
         self.path_to_etc= path_to_etc
 
-        # printTable(self.cur,"workload")
         self.arrivals = pd.read_sql_query("SELECT * FROM workload", self.conn)
                                                                                 
         self.path_to_reports = path_to_reports                
@@ -77,8 +76,6 @@ class Simulator(QObject):
     
 
     def create_event_queue(self): 
-        # print(self.path_to_arrivals)      
-        # arrivals = pd.read_csv(self.path_to_arrivals) 
         etc = pd.read_csv(self.path_to_etc,index_col=0)
         arrivals = self.arrivals
 

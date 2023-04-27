@@ -144,7 +144,7 @@ class WorkloadGenerator(QMainWindow):
         self.task_types_btn.setStyleSheet('''''')
         self.machine_types_btn.setStyleSheet('''''')
         self.scenario_btn.setStyleSheet('''''')
-        if self.display_scen_table.rowCount() != 0 or self.wkld_table.rowCount() != 0:
+        if self.wkld_table.rowCount() != 0:
             self.workload_btn.setStyleSheet('''''')
         else: self.workload_btn.setStyleSheet('''color:rgb(100,100,100)''')
         self.eet_btn.setStyleSheet('''''')
